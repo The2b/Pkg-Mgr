@@ -1,0 +1,1 @@
+g++ -o recursive-file-hasher RecursiveFileHasherTool.cpp FileHasherUtil.cpp -lcrypto -lstdc++fs -std=c++17 -g

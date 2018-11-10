@@ -1,0 +1,122 @@
+.TH "src/backend/Options.cpp" 3 "Fri Dec 14 2018" "Version 1.0.0" "Pkg-Mgr" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/backend/Options.cpp
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'Options\&.h'\fP
+.br
+
+.SS "Variables"
+
+.in +1c
+.ti -1c
+.RI "std::map< std::string, unsigned int > \fBconfigKeys\fP"
+.br
+.ti -1c
+.RI "std::map< int, mode_s > \fBmodes\fP"
+.br
+.ti -1c
+.RI "std::map< std::string, unsigned int > \fBmodeStrToInt\fP"
+.br
+.ti -1c
+.RI "std::set< unsigned int > \fBvalidModes\fP"
+.br
+.ti -1c
+.RI "std::set< unsigned int > \fBvalidOptMaskVals\fP"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Thomas Lenz thomas.lenz96@gmail.com AS The2b 
+.RE
+.PP
+\fBDate:\fP
+.RS 4
+18 November 2018  Package Manager
+.RE
+.PP
+-500
+.PP
+Just a note, since this is where we are storing all of our information, I decided to do all the option validation (from sources like config files and cli args) here, so that it's centralized\&. This may be broken apart later, such that the Options class is merely a warehouse, while we have another OptionsValidation class/set of functions to actually test the validity of the options passed to us\&. However, that will all be under the hood\&. 
+.SH "Variable Documentation"
+.PP 
+.SS "std::map<std::string, unsigned int> configKeys"
+\fBInitial value:\fP
+.PP
+.nf
+=
+{
+    { KEY_VERBOSE, MASK_VERBOSE },
+    
+    
+    
+    { KEY_SYSTEM_ROOT, MASK_SYSTEM_ROOT },
+    { KEY_TAR_LIBRARY_PATH, MASK_TAR_LIBRARY_PATH },
+    { KEY_INSTALLED_PKG_PATH, MASK_INSTALLED_PKG_PATH },
+    
+}
+.fi
+This map is used to translate configuration file options to values which we can use in switch statements, for efficiency This means that in order for a new configuration option to be recognized, its string representation, as well as a unique integer identifier must be added to this map\&. In addition, a valid option must also be added to the function applyConfig These values are set by pre-processor directives in Options\&.h 
+.SS "std::map<int, mode_s> modes"
+\fBInitial value:\fP
+.PP
+.nf
+= {
+    { INSTALL, mode_s{ INSTALL, "install" } },
+    { UNINSTALL, mode_s{ UNINSTALL, "uninstall" } },
+    { FOLLOW, mode_s{ FOLLOW, "follow" } },
+    { UNFOLLOW, mode_s{ UNFOLLOW, "unfollow" } },
+    { LIST_ALL, mode_s{ LIST_ALL, "list-all" } },
+    { LIST_INSTALLED, mode_s{ LIST_INSTALLED, "list-installed" } },
+    { NOP, mode_s{ NOP, NOP_KEY } }
+}
+.fi
+.SS "std::map<std::string, unsigned int> modeStrToInt"
+\fBInitial value:\fP
+.PP
+.nf
+= {
+    { "install",        INSTALL },
+    { "i",              INSTALL },
+    { "uninstall",      UNINSTALL },
+    { "u",              UNINSTALL },
+    { "follow",         FOLLOW },
+    { "f",              FOLLOW },
+    { "unfollow",       UNFOLLOW },
+    { "uf",             UNFOLLOW },
+    { "list-all",       LIST_ALL },
+    { "la",             LIST_ALL },
+    { "list-installed", LIST_INSTALLED },
+    { "li",             LIST_INSTALLED },
+    { NOP_KEY,          NOP }
+}
+.fi
+A dictionary used to translate mode strings into integers we can switch on In order to add a new mode of operation, its string representation(s) and integer identifier must be added to this map All of the integers, as well as NOP_KEY, are defined per pre-processor directives in Options\&.h 
+.SS "std::set<unsigned int> validModes"
+\fBInitial value:\fP
+.PP
+.nf
+= {
+    0,1,2,3,4,5,6,7,8,9,99
+}
+.fi
+This is used as a validation set, such that we can check if a given mode is valid In order to add a new mode of operation, its identifier must be added to this set 
+.SS "std::set<unsigned int> validOptMaskVals"
+\fBInitial value:\fP
+.PP
+.nf
+= {
+    0,1,2,4,8,16,32,64,128,256
+}
+.fi
+This is a set used to validate that the optMask values we send to addToOptMask are valid Specifically, this set is used to make sure that any values given to addToOptMask are powers of two 
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Pkg-Mgr from the source code\&.

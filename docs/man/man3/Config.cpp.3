@@ -1,0 +1,70 @@
+.TH "src/backend/Config.cpp" 3 "Fri Dec 14 2018" "Version 1.0.0" "Pkg-Mgr" \" -*- nroff -*-
+.ad l
+.nh
+.SH NAME
+src/backend/Config.cpp
+.SH SYNOPSIS
+.br
+.PP
+\fC#include 'Config\&.h'\fP
+.br
+
+.SS "Functions"
+
+.in +1c
+.ti -1c
+.RI "int \fBfindDelim\fP (std::string str, const char delim)"
+.br
+.ti -1c
+.RI "void \fBmergeConfig\fP (IConfigMap &baseConfig, IConfigMap &newConfig, unsigned int verbosity)"
+.br
+.in -1c
+.SH "Detailed Description"
+.PP 
+
+.PP
+\fBAuthor:\fP
+.RS 4
+Thomas Lenz thomas.lenz96@gmail.com AS The2b 
+.RE
+.PP
+\fBDate:\fP
+.RS 4
+11 November 2018  Package Manager
+.RE
+.PP
+-200 
+.SH "Function Documentation"
+.PP 
+.SS "int findDelim (std::string str, const char delim)"
+Find the location of the first unescaped delimiter in a given string The escape character is currently hard-coded to \\  Fix the hard-coded nature if the escape character
+.PP
+\fBParameters:\fP
+.RS 4
+\fIstd::string\fP str, the string to search through 
+.br
+\fIconst\fP char delim, the character to delimit on
+.RE
+.PP
+\fBReturns:\fP
+.RS 4
+int delimLoc, the location of the first un-escaped delimiter 
+.RE
+.PP
+
+.SS "void mergeConfig (IConfigMap & baseConfig, IConfigMap & newConfig, unsigned int verbosity)"
+Merge a new config map into and on top of the base config Adds all the keys (and their values) unique to newConfig to baseConfig Replaces all the values w/ keys they share with the newConfig values
+.PP
+\fBParameters:\fP
+.RS 4
+\fIIConfigMap&\fP baseConfig, the IConfigMap-implementing object to apply the second Config object's data onto 
+.br
+\fIIConfigMap&\fP newConfig, the IConfigMap-implementing object whose values you are going to overlay onto baseConfig 
+.br
+\fIunsigned\fP int verbosity, the verbosity to use when merging Config maps\&. Only matters if at 4 or higher 
+.RE
+.PP
+
+.SH "Author"
+.PP 
+Generated automatically by Doxygen for Pkg-Mgr from the source code\&.
