@@ -41,28 +41,10 @@ std::set<std::string> Pkg::buildPkgContents(unsigned int verbosity) {/*{{{*/
 
     // First, get a new archive struct and enable tar support
     archive* a = archive_read_new();
-    int res = archive_read_support_format_tar(a);
-
-    // Verify the archive is still okay
-    if(res != ARCHIVE_OK) {
-        if(verbosity != 0) {
-            fprintf(stderr,"Error: Could not prepare tarball support for package %s. %s\n",pkgName.c_str(),strerror(errno));
-        }
-
-        exit(-120);
+    if(openArchiveWithTarSupport(a, getPathname().c_str()) != 0) {
+        return std::set<std::string>{};
     }
-
-    // Read the headers
-    res = archive_read_open_filename(a, getPathname().c_str(), TAR_BLOCKSIZE);
     
-    if(res != ARCHIVE_OK) {
-        if(verbosity != 0) {
-            fprintf(stderr, "Error: Could not open the tarball %s when reading its contents.\n",pkgName.c_str());
-        }
-
-        exit(-121);
-    }
-
     archive_entry* ae;
     
     // Read our headers, and add each file path to our set
@@ -111,39 +93,45 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
         if(verbosity != 0) {
             fprintf(stderr,"Error: The installation path must be a directory, or a symbolic link to a directory.\n");
         }
-        exit(-110);
+        return -110;
     }
 
     if(!std::filesystem::is_directory(std::filesystem::status(installedPkgsPath))) {
         if(verbosity != 0) {
             fprintf(stderr,"Error: The \"installed packages\" path must be a directory, or a symbolic link to a directory.\n");
         }
-        exit(-111);
+        return -111;
     }
 
     if(!std::filesystem::exists(tarPath)) {
         if(verbosity != 0) {
             fprintf(stderr,"Error: Tar package path %s does not exist.\n",tarPath.c_str());
-            exit(-112);
+            return -112;
         }
     }
 
-    // Open our tar file
-    archive* a = archive_read_new();
-    archive_entry* ae = archive_entry_new();
-
-    int res = archive_read_support_format_tar(a);
-
-    res += archive_read_open_filename(a, tarPath.c_str(), TAR_BLOCKSIZE);
-
-    if(res != ARCHIVE_OK) {
+    // Run our pre-install script, if it exists
+    int res = execPreInstallScript(verbosity);
+    if(res < 0) {
         if(verbosity != 0) {
-            fprintf(stderr,"Could not open the tarball for installation. %s\n",strerror(errno));
+            fprintf(stderr,"Error: The pre-install script for the package %s returned error code %d. Bailing out...\n",pkgName.c_str(), res);
         }
-        exit(-102);
+
+        return res;
+    }
+
+    // Add our scripts to our exclusions
+    addScriptsToExclusions(exclusions);
+
+    // Open our tar file
+    archive* a;
+    archive_entry* ae;
+    if(openArchiveWithTarSupport(a, tarPath.c_str(), verbosity) != 0) {
+        return -113;
     }
 
     int err = 0;
+    res = 0;
 
     // Go through each header, and extract the files/folders
     while((res = archive_read_next_header(a,&ae)) == ARCHIVE_OK && err == 0) {
@@ -154,9 +142,7 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
         archive_entry_set_pathname(ae,new_aePath.c_str());
 
         // Check our exception list
-        const bool shouldSkip = (exclusions.find(std::string(new_aePath)) != exclusions.end());
-
-        if(!shouldSkip) {
+        if(exclusions.find(std::string(new_aePath)) == exclusions.end()) {
             err = archive_read_extract(a, ae, ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_SECURE_NODOTDOT | ARCHIVE_EXTRACT_XATTR);
         }
     }
@@ -170,11 +156,20 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
     }
 
     if(res == ARCHIVE_EOF) {
+        // Run our post-install script, if it exists
+        res = execPostInstallScript(verbosity);
+        if(res < 0) {
+            if(verbosity != 0) {
+                fprintf(stderr,"Error: The post-install script for the package %s returned error code %d. Attempting to continue...\n",pkgName.c_str(),res);
+            }
+        }
+
         if(followPkg(installedPkgsPath, verbosity)) {
             if(verbosity >= 2) {
                 printf("The package %s has been installed!\n",getPkgName().c_str());
             }
         }
+
         else {
             if(verbosity != 0) {
                 fprintf(stderr,"The package appears to have been installed, but the database could not be updated. Run \"touch %s\" to update the database\n",(installedPkgsPath + "/" + getPkgName()).c_str());
@@ -218,22 +213,39 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
         if(verbosity != 0) {
             fprintf(stderr,"Error: The installation path must be a directory, or a symbolic link to a directory.\n");
         }
-        exit(-110);
+
+        return -110;
     }
 
     if(!std::filesystem::is_directory(std::filesystem::status(installedPkgsPath))) {
         if(verbosity != 0) {
             fprintf(stderr,"Error: The \"installed packages\" path must be a directory, or a symbolic link to a directory.\n");
         }
-        exit(-111);
+
+        return -111;
     }
 
-    // First, we'll delete all the files within the package
+
+    // Run our post-install script, if it exists
+    int res = execPreUninstallScript(verbosity);
+    if(res < 0) {
+        // Bail out
+        if(verbosity < 0) {
+            fprintf(stderr,"The pre-uninstall script for the package %s returned an error code. Bailing out...\n",pkgName.c_str());
+        }
+
+        return res;
+    }
+
+    // Add our scripts to our exclusions
+    addScriptsToExclusions(exclusions);
+
+    // Next, delete all the files within the package
     // To do this, we'll interate through our pkgContents
     // While doing so, we'll remove the files while putting directory paths into another vector
     // After we've deleted all the files, we'll delete all the now-empty directories within our package. We do this so we don't remove the root directory or anything of the like.
     int objectsRemoved = 0;
-    int res = 0;
+    res = 0;
 
     // Turn our package contents into a vector
     std::vector<std::string> pkgContentsVector(pkgContents.begin(),pkgContents.end());
@@ -245,18 +257,26 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
         // Make a std::filesystem::path object so we can execute fs functions on it
         std::filesystem::path filePath = std::string(root + "/" + pkgContentsVector[index]);
 
+        // If we're supposed to ignore the file, move on to the next one
+        if(exclusions.find(filePath) != exclusions.end()) {
+            continue;
+        }
+
         // Check if its a directory. May want to check if its a symlink too...
         // @TODO
         bool isDir = std::filesystem::is_directory(filePath);
         bool isEmpty = std::filesystem::is_empty(filePath);
         bool exists = std::filesystem::exists(filePath);
 
+        // If it's an empty directory or some sort of file, remove it
+        // @TODO Make this not be dangerous with things like device files
         if((isDir && isEmpty) || (exists && !isDir)) {
-            // If we're here, remove returned 0. Tick our counter and move on.
             if(std::filesystem::remove(filePath)) {
+                // If we're here, remove returned 0. Tick our counter and move on.
                 objectsRemoved++;
                 continue;
             }
+
             else {
                 if(verbosity != 0) {
                     fprintf(stderr,"The path %s existed, but could not be removed\n",filePath.c_str());
@@ -288,6 +308,14 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
     }
 
     if(res == 0) {
+        // Run our post-uninstall script, if it exists
+        res = execPostUninstallScript(verbosity) < 0;
+        if(res < 0) {
+            if(verbosity != 0) {
+                fprintf(stderr,"Error: The post-uninstall script for the package %s returned an error code %d. Attempting to continue...\n",pkgName.c_str(), res);
+            }
+        }
+
         if(unfollowPkg(installedPkgsPath, verbosity)) {
             if(verbosity >= 2) {
                 printf("The package %s has been uninstalled!\n",getPkgName().c_str());
@@ -436,4 +464,198 @@ bool listInstalledPkgs(std::string installedPkgsPath, unsigned int verbosity) {/
     }
 
     return true;
+}/*}}}*/
+
+/**
+ * Executes the pre-install shell script of the package, if it exists
+ * 
+ * @param [in] unsigned int verbosity
+ *
+ * @returns int scriptExitCode
+ */
+int Pkg::execPreInstallScript(unsigned int verbosity) {/*{{{*/
+    const std::string SCRIPT_NAME = PRE_INSTALL_NAME;
+    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "/";
+
+    return extractAndExecScript(SCRIPT_NAME, EXTRACTION_DIR, pathname, verbosity);
+}/*}}}*/
+
+/**
+ * Executes the post-install shell script of the package, if it exists
+ * 
+ * @param [in] unsigned int verbosity
+ *
+ * @returns int scriptExitCode
+ */
+int Pkg::execPostInstallScript(unsigned int verbosity) {/*{{{*/
+    const std::string SCRIPT_NAME = POST_INSTALL_NAME;
+    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "/";
+
+    return extractAndExecScript(SCRIPT_NAME, EXTRACTION_DIR, pathname, verbosity);
+}/*}}}*/
+
+/**
+ * Executes the pre-uninstall shell script of the package, if it exists
+ * 
+ * @param [in] unsigned int verbosity
+ *
+ * @returns int scriptExitCode
+ */
+int Pkg::execPreUninstallScript(unsigned int verbosity) {/*{{{*/
+    const std::string SCRIPT_NAME = PRE_UNINSTALL_NAME;
+    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "/";
+
+    return extractAndExecScript(SCRIPT_NAME, EXTRACTION_DIR, pathname, verbosity);
+}/*}}}*/
+
+/**
+ * Executes the post-uninstall shell script of the package, if it exists
+ *
+ * @param [in] unsigned int verbosity
+ *
+ * @returns int scriptExitCode
+ */
+int Pkg::execPostUninstallScript(unsigned int verbosity) {/*{{{*/
+    const std::string SCRIPT_NAME = POST_UNINSTALL_NAME;
+    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "/";
+
+    return extractAndExecScript(SCRIPT_NAME, EXTRACTION_DIR, pathname, verbosity);
+}/*}}}*/
+
+/**
+ * Opens an archive for reading and sets up tar support
+ *
+ * @param [out] archive* archive
+ * @param [in] std::string archivePath
+ * @param [in] unsigned int verbosity
+ *
+ * @returns bool success
+ */
+bool openArchiveWithTarSupport(struct archive* a, std::string archivePath, unsigned int verbosity) {/*{{{*/
+    a = archive_read_new();
+    int res = archive_read_support_format_tar(a);
+    res += archive_read_open_filename(a, archivePath.c_str(), TAR_BLOCKSIZE);
+
+    // Verify the archive is still okay
+    if(res != ARCHIVE_OK) {
+        if(verbosity != 0) {
+            fprintf(stderr,"Error: Could not prepare tarball support for package %s. %s\n",archivePath.c_str(),strerror(errno));
+        }
+
+        return false;
+    }
+
+    return true;
+}/*}}}*/
+
+/**
+ * Finds the given file in the package, and sets the archive entry for it
+ * Exit statuses are as follows:
+ *  0: File was found and archiveEntryToSet was set correctly
+ *  1: The path was not found within the archive
+ *  -1: There was an error while reading the archive
+ *
+ * @param [in] std::string filePathToSearchFor
+ * @param [in] std::string archivePath
+ * @param [in/out] archive* archive
+ * @param [in/out] archive_entry* archiveEntryToSet
+ *
+ * @returns int exitStatus
+ */
+int setArchiveEntryToFile(std::string filepath, std::string archivePath, struct archive* a, struct archive_entry* entryToSet, unsigned int verbosity) {/*{{{*/
+    // First, get a new archive struct and enable tar support
+    openArchiveWithTarSupport(a, archivePath, verbosity);
+
+    // Read the headers
+    int res = archive_read_open_filename(a, archivePath.c_str(), TAR_BLOCKSIZE);
+    
+    if(res != ARCHIVE_OK) {
+        if(verbosity != 0) {
+            fprintf(stderr, "Error: Could not open the tarball %s when reading its contents.\n",archivePath.c_str());
+        }
+
+        return -1;
+    }
+
+    archive_entry* ae = archive_entry_new();
+
+    // Read our headers, and add each file path to our set
+    while(archive_read_next_header(a,&ae) == ARCHIVE_OK) {
+        if(strcmp(filepath.c_str(),archive_entry_pathname(ae)) == 0) {
+            entryToSet = ae;
+            return 0;
+        }
+    }
+
+    return 1;
+}/*}}}*/
+
+/**
+ * Extracts and executes a script from a tarball
+ * The script must be in the root of the tarball
+ *
+ * @param [in] std::string scriptName
+ * @param [in] std::stirng extractionDir
+ * @param [in] std::string archivePath
+ * @param [in] unsigned int verbosity
+ */
+int extractAndExecScript(std::string scriptName, std::string extractionDir, std::string archivePath, unsigned int verbosity) {/*{{{*/
+    // Create the extraction directory if it does not already exist
+    std::error_code e;
+    if(!std::filesystem::create_directories(extractionDir, e)) {
+        if(verbosity != 0) {
+            fprintf(stderr,"Error: While preparing to extract the post-uninstall script, an unknown error occured\n");
+            fprintf(stderr,e.message().c_str());
+        }
+
+        return -1;
+    }
+    
+    archive* a;
+    archive_entry* ae;
+    if(openArchiveWithTarSupport(a, archivePath, verbosity) != 0) {
+        return -1;
+    }
+
+    int res = setArchiveEntryToFile(scriptName, archivePath, a, ae);
+    
+    // Error
+    if(res == -1) {
+        return -1;
+    }
+
+    // Found the script
+    else if(res == 0) {
+        // Change the path at which the entry will be extracted
+        std::string extractionPath = extractionDir + scriptName;
+        archive_entry_copy_pathname(ae, extractionPath.c_str());
+
+        // Create a string for the system() call
+        // @TODO Allow the shell used to be set on configure
+        std::string execCmd = "sh " + extractionPath;
+
+        // Extract the script
+        int err = archive_read_extract(a, ae, ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_SECURE_NODOTDOT | ARCHIVE_EXTRACT_XATTR);
+
+        // Run the script
+        return system(execCmd.c_str());
+    }
+
+    // The script was not found. 256 chosen since shell scripts, to my knowledge, should only return up to 255
+    // @TODO Verify this
+    else {
+        return 256;
+    }
+}/*}}}*/
+
+/**
+ * Adds the pre- and post- install/uninstall scripts to the exclusions list
+ *
+ * @param [in/out] std::set<std::string>& exclusions
+ */
+void addScriptsToExclusions(std::set<std::string>& exclusions) {/*{{{*/
+    exclusions.insert(PRE_INSTALL_NAME);
+    exclusions.insert(POST_INSTALL_NAME);
+    exclusions.insert(PRE_UNINSTALL_NAME);
+    exclusions.insert(POST_UNINSTALL_NAME);
 }/*}}}*/

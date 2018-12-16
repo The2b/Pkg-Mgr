@@ -1,0 +1,4 @@
+Add tests for pre- and post- (un,)install scripts
+Refactor Options.cpp to use integer verbosity
+Make requirements less rigid for configure. Add more alternatives (experimental, boost for filesystem).
+grep -RI @TODO *

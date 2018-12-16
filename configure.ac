@@ -137,38 +137,78 @@ AC_ARG_VAR([DEFAULT_SYSTEM_ROOT],[Sets the default system root, which is attache
 AC_ARG_VAR([DEFAULT_EXCLUDED_FILES],[Sets the default files which we should ignore when installing or uninstalling packages. This has no effect on the files we use to mark installed packages. THIS IS NOT CURRENTLY IMPLEMENTED, AND LIKELY NEVER WILL BE IN CONFIGURE!! This is only here as a placeholder in case I do decide to implement it.])
 
 # Process and define them
-AS_IF([test x"$DEFAULT_VERBOSITY" != x],
-      [AC_DEFINE_UNQUOTED([DEFAULT_VERBOSITY],[$DEFAULT_VERBOSITY])],
-      [AC_DEFINE([DEFAULT_VERBOSITY],[2])]
+AC_MSG_CHECKING([for the default verbosity])
+AS_IF([test "x$DEFAULT_VERBOSITY" != x],
+      [defaultVerbosity=$DEFAULT_VERBOSITY],
+      [defaultVerbosity=2]
      )
-AS_IF([test x"$DEFAULT_SMART_OP" != x],
-      [AC_DEFINE_UNQUOTED([DEFAULT_SMART_OP],[$DEFAULT_SMART_OP])],
-      [AC_DEFINE([DEFAULT_SMART_OP],[false])]
+AC_DEFINE_UNQUOTED([DEFAULT_VERBOSITY],[$defaultVerbosity])
+AC_SUBST([defaultVerbosity],["$defaultVerbosity"])
+AC_MSG_RESULT([$defaultVerbosity])
+
+AC_MSG_CHECKING([for the default smart operation])
+AS_IF([test "x$DEFAULT_SMART_OP" != x],
+      [defaultSmartOp=$DEFAULT_SMART_OP],
+      [defaultSmartOp=true]
      )
-AS_IF([test x"$DEFAULT_TAR_LIBRARY_PATH" != x],
-      [AC_DEFINE_UNQUOTED([DEFAULT_TAR_LIBRARY_PATH],["$DEFAULT_TAR_LIBRARY_PATH"])],
-      [AC_DEFINE([DEFAULT_TAR_LIBRARY_PATH],["/var/lib/pkg-mgr/pkgs/"])]
+AC_DEFINE_UNQUOTED([DEFAULT_SMART_OP],[$defaultSmartOp])
+AC_SUBST([defaultSmartOp],["$defaultSmartOp"])
+AC_MSG_RESULT([$defaultSmartOp])
+
+AC_MSG_CHECKING([for the default tar library path])
+AS_IF([test "x$DEFAULT_TAR_LIBRARY_PATH" != x],
+      [defaultTarLibPath="$DEFAULT_TAR_LIBRARY_PATH"],
+      [defaultTarLibPath="$prefix/var/lib/pkg-mgr/pkgs/"]
      )
-AS_IF([test x"$DEFAULT_INSTALLED_PKG_PATH" != x],
-      [AC_DEFINE_UNQUOTED([DEFAULT_INSTALLED_PKG_PATH],["$DEFAULT_INSTALLED_PKG_PATH"])],
-      [AC_DEFINE([DEFAULT_INSTALLED_PKG_PATH],["/var/lib/pkg-mgr/installed/"])]
+AC_DEFINE_UNQUOTED([DEFAULT_TAR_LIBRARY_PATH],["$defaultTarLibPath"])
+AC_SUBST([defaultTarLibPath],["$defaultTarLibPath"])
+AC_MSG_RESULT([$defaultTarLibPath])
+
+AC_MSG_CHECKING([for the installed package index path])
+AS_IF([test "x$DEFAULT_INSTALLED_PKG_PATH" != x],
+      [defaultInstalledPkgPath="$DEFAULT_INSTALLED_PKG_PATH"],
+      [defaultInstalledPkgPath="$prefix/var/lib/pkg-mgr/installed/"]
      )
-AS_IF([test x"$DEFAULT_GLOBAL_CONFIG_PATH" != x],
-      [AC_DEFINE_UNQUOTED([DEFAULT_GLOBAL_CONFIG_PATH],["$DEFAULT_GLOBAL_CONFIG_PATH"])],
-      [AC_DEFINE([DEFAULT_GLOBAL_CONFIG_PATH],["/etc/pkg-mgr.conf"])]
+AC_DEFINE_UNQUOTED([DEFAULT_INSTALLED_PKG_PATH],["$defaultInstalledPkgPath"])
+AC_SUBST([defaultInstalledPkgPath],["$defaultInstalledPkgPath"])
+AC_MSG_RESULT([$defaultInstalledPkgPath])
+
+AC_MSG_CHECKING([for the default global configuration file path])
+AS_IF([test "x$DEFAULT_GLOBAL_CONFIG_PATH" != x],
+      [defaultGlobalConfigPath="$DEFAULT_GLOBAL_CONFIG_PATH"],
+      [defaultGlobalConfigPath="$sysconfdir/etc/pkg-mgr.conf"]
      )
-AS_IF([test x"$DEFAULT_USER_CONFIG_PATH" != x],
-      [AC_DEFINE_UNQUOTED([DEFAULT_USER_CONFIG_PATH],["$DEFAULT_USER_CONFIG_PATH"])],
-      [AC_DEFINE([DEFAULT_USER_CONFIG_PATH],["/.config/pkg-mgr.conf"])]
+AC_DEFINE_UNQUOTED([DEFAULT_GLOBAL_CONFIG_PATH],["$defaultGlobalConfigPath"])
+AC_SUBST([defaultGlobalConfigPath],["$defaultGlobalConfigPath"])
+AC_MSG_RESULT([$defaultGlobalConfigPath])
+
+AC_MSG_CHECKING([for the default user configuration file path])
+AS_IF([test "x$DEFAULT_USER_CONFIG_PATH" != x],
+      [defaultUserConfigPath="$DEFAULT_USER_CONFIG_PATH"],
+      [defaultUserConfigPath="/.config/pkg-mgr.conf"]
      )
-AS_IF([test x"$DEFAULT_SYSTEM_ROOT" != x],
-      [AC_DEFINE_UNQUOTED([DEFAULT_SYSTEM_ROOT],["$DEFAULT_SYSTEM_ROOT"])],
-      [AC_DEFINE([DEFAULT_SYSTEM_ROOT],["/"])]
+AC_DEFINE_UNQUOTED([DEFAULT_USER_CONFIG_PATH],["$defaultUserConfigPath"])
+AC_SUBST([defaultUserConfigPath],["$defaultUserConfigPath"])
+AC_MSG_RESULT([$defaultUserConfigPath])
+
+AC_MSG_CHECKING([for the default system root])
+AS_IF([test "x$DEFAULT_SYSTEM_ROOT" != x],
+      [defaultSystemRoot="$DEFAULT_SYSTEM_ROOT"],
+      [defaultSystemRoot="$prefix/"]
      )
-AS_IF([test x"$DEFAULT_EXCLUDED_FILES" != x],
-      [AC_DEFINE_UNQUOTED([DEFAULT_EXCLUDED_FILES],["$DEFAULT_EXCLUDED_FILES"])],
-      [AC_DEFINE([DEFAULT_EXCLUDED_FILES],[{}])]
+AC_DEFINE_UNQUOTED([DEFAULT_SYSTEM_ROOT],["$defaultSystemRoot"])
+AC_SUBST([defaultSystemRoot],["$defaultSystemRoot"])
+AC_MSG_RESULT([$defaultSystemRoot])
+
+AC_MSG_CHECKING([for the default excluded files])
+AS_IF([test "x$DEFAULT_EXCLUDED_FILES" != x],
+      [defaultExcludedFiles=$DEFAULT_EXCLUDED_FILES],
+      [defaultExcludedFiles={}]
      )
+AC_DEFINE_UNQUOTED([DEFAULT_EXCLUDED_FILES],[$defaultExcludedFiles])
+AC_SUBST([defaultExcludedFiles],["$defaultExcludedFiles"])
+AC_MSG_RESULT([$defaultExcludedFiles])
+
 # END DEFAULT DEFINITIONS}}}
 
 # BEGIN CHECK LIBRARY FUNCTIONS{{{

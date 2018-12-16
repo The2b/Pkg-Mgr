@@ -169,6 +169,32 @@ void PkgTest::testUnfollow() {
 
     postTestUnfollow();
 }
+
+// @TODO
+// Just have an archive with the script and nothing else. Have the script touch a file. Check for that file's existence.
+void PkgTest::testPreInstallScript() {
+    preTestPreInstallScript();
+
+    postTestPreInstallScript();
+}
+
+void PkgTest::testPostInstallScript() {
+    preTestPostInstallScript();
+
+    postTestPostInstallScript();
+}
+
+void PkgTest::testPreUninstallScript() {
+    preTestPreUninstallScript();
+
+    postTestPreUninstallScript();
+}
+
+void PkgTest::testPostUninstallScript() {
+    preTestPostUninstallScript();
+
+    postTestPostUninstallScript();
+}
 /* End functionality test suite */
 
 /* Pre- and post-test functions */
@@ -288,6 +314,38 @@ int PkgTest::postTestFollow() {
 
 int PkgTest::postTestUnfollow() {
     tearDown();
+    return 0;
+}
+
+int PkgTest::preTestPreInstallScript() {
+    return 0;
+}
+
+int PkgTest::preTestPostInstallScript() {
+    return 0;
+}
+
+int PkgTest::preTestPreUninstallScript() {
+    return 0;
+}
+
+int PkgTest::preTestPostUninstallScript() {
+    return 0;
+}
+
+int PkgTest::postTestPreInstallScript() {
+    return 0;
+}
+
+int PkgTest::postTestPostInstallScript() {
+    return 0;
+}
+
+int PkgTest::postTestPreUninstallScript() {
+    return 0;
+}
+
+int PkgTest::postTestPostUninstallScript() {
     return 0;
 }
 

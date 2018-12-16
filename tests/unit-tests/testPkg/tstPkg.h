@@ -60,6 +60,10 @@ class PkgTest : public CppUnit::TestFixture {
         void testUninstall();
         void testFollow();
         void testUnfollow();
+        void testPreInstallScript();
+        void testPostInstallScript();
+        void testPreUninstallScript();
+        void testPostUninstallScript();
 
         // Pre and post test functions
         int preTestMemberVars();
@@ -74,11 +78,19 @@ class PkgTest : public CppUnit::TestFixture {
         int preTestUninstall();
         int preTestFollow();
         int preTestUnfollow();
+        int preTestPreInstallScript();
+        int preTestPostInstallScript();
+        int preTestPreUninstallScript();
+        int preTestPostUninstallScript();
         int postTestFunctionality();
         int postTestInstall();
         int postTestUninstall();
         int postTestFollow();
         int postTestUnfollow();
+        int postTestPreInstallScript();
+        int postTestPostInstallScript();
+        int postTestPreUninstallScript();
+        int postTestPostUninstallScript();
 
         // Test Suite functions
         static CppUnit::Test* memberVarSuite();
