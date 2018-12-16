@@ -11,12 +11,12 @@ std::string execDir;
 
 int main(int argc, char** argv) {
     execDir = std::string(dirname(argv[0]));
-    CppUnit::TextUi::TestRunner configRunner;
+    CppUnit::TextTestRunner configRunner;
     configRunner.addTest( ConfigTest::configSuite() );
 
-    configRunner.run();
+    configRunner.run("", false, true, false);
 
-    return 0;
+    return (-1 * (configRunner.result().testFailuresTotal()));
 }
 
 CppUnit::Test* ConfigTest::configSuite() {

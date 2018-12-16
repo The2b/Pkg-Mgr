@@ -7,6 +7,7 @@
 #include <cppunit/TestCaller.h>
 #include <cppunit/TestFixture.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/TestResultCollector.h>
 
 #include "Config.h"
 

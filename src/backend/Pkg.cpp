@@ -119,6 +119,8 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
 
         return res;
     }
+    
+    res = 0;
 
     // Add our scripts to our exclusions
     addScriptsToExclusions(exclusions);
@@ -126,12 +128,11 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
     // Open our tar file
     archive* a;
     archive_entry* ae;
-    if(openArchiveWithTarSupport(a, tarPath.c_str(), verbosity) != 0) {
+    if(!openArchiveWithTarSupport(a, tarPath.c_str(), verbosity)) {
         return -113;
     }
 
     int err = 0;
-    res = 0;
 
     // Go through each header, and extract the files/folders
     while((res = archive_read_next_header(a,&ae)) == ARCHIVE_OK && err == 0) {
@@ -152,16 +153,18 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
             fprintf(stderr,"Error: An error occured while reading the tar file %s.\n",pathname);
         }
 
-        exit(-113);
+        return err;
     }
 
     if(res == ARCHIVE_EOF) {
         // Run our post-install script, if it exists
-        res = execPostInstallScript(verbosity);
-        if(res < 0) {
+        int scriptRes = execPostInstallScript(verbosity);
+        if(scriptRes < 0) {
             if(verbosity != 0) {
                 fprintf(stderr,"Error: The post-install script for the package %s returned error code %d. Attempting to continue...\n",pkgName.c_str(),res);
             }
+            
+            return scriptRes;
         }
 
         if(followPkg(installedPkgsPath, verbosity)) {
@@ -179,11 +182,14 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
 
     else {
         if(verbosity != 0) {
-            fprintf(stderr,"Error: Something went wrong when writing the package %s: %s\n",pkgName.c_str(),strerror(errno));
+            fprintf(stderr,"Error: Something went wrong when writing the package %s: %s\n",pathname.c_str(),strerror(errno));
+            fprintf(stderr,"err = %d\n",err);
         }
+
+        return -1;
     }
 
-    return res;
+    return err;
 }/*}}}*/
 
 // This function is here to work around the fact that I can't use member vars/functions as default parameters
@@ -309,8 +315,8 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
 
     if(res == 0) {
         // Run our post-uninstall script, if it exists
-        res = execPostUninstallScript(verbosity) < 0;
-        if(res < 0) {
+        int scriptRes = execPostUninstallScript(verbosity) < 0;
+        if(scriptRes < 0) {
             if(verbosity != 0) {
                 fprintf(stderr,"Error: The post-uninstall script for the package %s returned an error code %d. Attempting to continue...\n",pkgName.c_str(), res);
             }
@@ -531,10 +537,10 @@ int Pkg::execPostUninstallScript(unsigned int verbosity) {/*{{{*/
  *
  * @returns bool success
  */
-bool openArchiveWithTarSupport(struct archive* a, std::string archivePath, unsigned int verbosity) {/*{{{*/
+bool openArchiveWithTarSupport(struct archive*& a, std::string archivePath, unsigned int verbosity) {/*{{{*/
     a = archive_read_new();
-    int res = archive_read_support_format_tar(a);
-    res += archive_read_open_filename(a, archivePath.c_str(), TAR_BLOCKSIZE);
+    archive_read_support_format_tar(a);
+    int res = archive_read_open_filename(a, archivePath.c_str(), TAR_BLOCKSIZE);
 
     // Verify the archive is still okay
     if(res != ARCHIVE_OK) {
@@ -549,48 +555,6 @@ bool openArchiveWithTarSupport(struct archive* a, std::string archivePath, unsig
 }/*}}}*/
 
 /**
- * Finds the given file in the package, and sets the archive entry for it
- * Exit statuses are as follows:
- *  0: File was found and archiveEntryToSet was set correctly
- *  1: The path was not found within the archive
- *  -1: There was an error while reading the archive
- *
- * @param [in] std::string filePathToSearchFor
- * @param [in] std::string archivePath
- * @param [in/out] archive* archive
- * @param [in/out] archive_entry* archiveEntryToSet
- *
- * @returns int exitStatus
- */
-int setArchiveEntryToFile(std::string filepath, std::string archivePath, struct archive* a, struct archive_entry* entryToSet, unsigned int verbosity) {/*{{{*/
-    // First, get a new archive struct and enable tar support
-    openArchiveWithTarSupport(a, archivePath, verbosity);
-
-    // Read the headers
-    int res = archive_read_open_filename(a, archivePath.c_str(), TAR_BLOCKSIZE);
-    
-    if(res != ARCHIVE_OK) {
-        if(verbosity != 0) {
-            fprintf(stderr, "Error: Could not open the tarball %s when reading its contents.\n",archivePath.c_str());
-        }
-
-        return -1;
-    }
-
-    archive_entry* ae = archive_entry_new();
-
-    // Read our headers, and add each file path to our set
-    while(archive_read_next_header(a,&ae) == ARCHIVE_OK) {
-        if(strcmp(filepath.c_str(),archive_entry_pathname(ae)) == 0) {
-            entryToSet = ae;
-            return 0;
-        }
-    }
-
-    return 1;
-}/*}}}*/
-
-/**
  * Extracts and executes a script from a tarball
  * The script must be in the root of the tarball
  *
@@ -602,40 +566,53 @@ int setArchiveEntryToFile(std::string filepath, std::string archivePath, struct 
 int extractAndExecScript(std::string scriptName, std::string extractionDir, std::string archivePath, unsigned int verbosity) {/*{{{*/
     // Create the extraction directory if it does not already exist
     std::error_code e;
-    if(!std::filesystem::create_directories(extractionDir, e)) {
+    if(!std::filesystem::create_directories(extractionDir, e) && e.value() != 0) {
         if(verbosity != 0) {
-            fprintf(stderr,"Error: While preparing to extract the post-uninstall script, an unknown error occured\n");
-            fprintf(stderr,e.message().c_str());
+            fprintf(stderr,"Error: While attempting to create the folder %s to extract the script %s in archive %s, an unknown error occured\n",extractionDir.c_str(),scriptName.c_str(), archivePath.c_str());
+            fprintf(stderr,"%s\n",e.message().c_str());
         }
 
-        return -1;
+        return -256;
     }
     
-    archive* a;
-    archive_entry* ae;
-    if(openArchiveWithTarSupport(a, archivePath, verbosity) != 0) {
-        return -1;
+    archive* a = archive_read_new();
+    archive_entry* ae = archive_entry_new();
+    int res = 0;
+    bool found = false;
+
+    if(!openArchiveWithTarSupport(a,archivePath,verbosity)) {
+        return -256;
     }
 
-    int res = setArchiveEntryToFile(scriptName, archivePath, a, ae);
+    // Read our headers, and see if any of them match our script name
+    while((res = archive_read_next_header2(a, ae)) == ARCHIVE_OK) {
+        std::string entryPath = archive_entry_pathname(ae);
+        if(scriptName == entryPath) {
+            if(verbosity >= 3) {
+                found = true;
+                printf("%s found for package %s\n", scriptName.c_str(), archivePath.c_str());
+                break;
+            }
+        }
+    }
     
     // Error
     if(res == -1) {
-        return -1;
+        return -258;
     }
 
     // Found the script
-    else if(res == 0) {
+    else if(found) {
         // Change the path at which the entry will be extracted
         std::string extractionPath = extractionDir + scriptName;
-        archive_entry_copy_pathname(ae, extractionPath.c_str());
+        archive_entry_set_pathname(ae, extractionPath.c_str());
 
         // Create a string for the system() call
         // @TODO Allow the shell used to be set on configure
-        std::string execCmd = "sh " + extractionPath;
+        std::string execCmd = extractionPath;
 
         // Extract the script
-        int err = archive_read_extract(a, ae, ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_SECURE_NODOTDOT | ARCHIVE_EXTRACT_XATTR);
+        int err = archive_read_extract(a, ae, ARCHIVE_EXTRACT_ACL | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_SECURE_NODOTDOT | ARCHIVE_EXTRACT_XATTR );
 
         // Run the script
         return system(execCmd.c_str());

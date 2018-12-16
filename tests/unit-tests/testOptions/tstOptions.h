@@ -12,11 +12,13 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <filesystem>
 
 #include <cppunit/TestAssert.h>
 #include <cppunit/TestFixture.h>
 #include <cppunit/TestCaller.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/TestResultCollector.h>
 
 #include "Options.h"
 

@@ -20,3 +20,4 @@ tstPkg
 tstConfig
 tstOptions
 *.bak
+*test-env*

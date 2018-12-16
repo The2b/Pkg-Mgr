@@ -18,11 +18,12 @@
 #include <cppunit/TestFixture.h>
 #include <cppunit/TestCaller.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/TestResultCollector.h>
 
 #include "Pkg.h"
 
 #define TEST_TAR_COUNT 5
-#define VERBOSITY 0
+#define VERBOSITY 4
 
 #define BASE_DIR "test-env/"
 #define PKG_DIR "test-env/pkgs/"

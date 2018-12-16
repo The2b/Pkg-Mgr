@@ -74,8 +74,8 @@ class Pkg {
 
 bool listAllPkgs(std::string libraryPath, unsigned int verbosity = DEFAULT_VERBOSITY);
 bool listInstalledPkgs(std::string installedPkgsPath, unsigned int verbosity = DEFAULT_VERBOSITY);
-bool openArchiveWithTarSupport(struct archive* a, std::string archivePath, unsigned int verbosity = DEFAULT_VERBOSITY);
-int setArchiveEntryToFile(std::string filepath, std::string archivePath, struct archive* a, struct archive_entry* archiveEntryToSet, unsigned int verbosity = DEFAULT_VERBOSITY);
+bool openArchiveWithTarSupport(struct archive*& a, std::string archivePath, unsigned int verbosity = DEFAULT_VERBOSITY);
+int setArchiveEntryToFile(std::string filepath, std::string archivePath, struct archive_entry*& archiveEntryToSet, unsigned int verbosity = DEFAULT_VERBOSITY);
 int extractAndExecScript(std::string scriptName, std::string extractionDir, std::string archivePath, unsigned int verbosity = DEFAULT_VERBOSITY);
 void addScriptsToExclusions(std::set<std::string>& exclusions);
 

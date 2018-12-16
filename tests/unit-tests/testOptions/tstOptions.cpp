@@ -10,12 +10,12 @@
 #include "tstOptions.h"
 
 int main(int argc, char** argv) {
-    CppUnit::TextUi::TestRunner optsRunner;
+    CppUnit::TextTestRunner optsRunner;
     optsRunner.addTest(OptionsTest::optionsTestSuite());
 
-    optsRunner.run();
+    optsRunner.run("", false, true, false);
 
-    return 0;
+    return (-1 * (optsRunner.result().testFailuresTotal()));
 }
 
 CppUnit::Test* OptionsTest::optionsTestSuite() {
@@ -145,18 +145,55 @@ void OptionsTest::testApplyConfig() {
     MockConfigMap mock = MockConfigMap();
     std::map<std::string, std::string> mockMap = *mock.getConfigMap();
 
-    opts->applyConfig(mock, true);
+    opts->applyConfig(mock, false);
 
 
     // Validate the settings are as we expect
     // Anything commented out has not yet been implemented
     CPPUNIT_ASSERT(std::to_string(opts->getVerbosity()) == mockMap[KEY_VERBOSE]);
+    
     //CPPUNIT_ASSERT(std::string(opts->getSmartOperation()) == mockMap[KEY_SMART_OP]);
-    CPPUNIT_ASSERT(opts->getGlobalConfigPath() == mockMap[KEY_GLOBAL_CONFIG_PATH]);
-    CPPUNIT_ASSERT(opts->getUserConfigPath() == mockMap[KEY_USER_CONFIG_PATH]);
-    CPPUNIT_ASSERT(opts->getSystemRoot() == mockMap[KEY_SYSTEM_ROOT]);
-    CPPUNIT_ASSERT(opts->getTarLibraryPath() == mockMap[KEY_TAR_LIBRARY_PATH]);
-    CPPUNIT_ASSERT(opts->getInstalledPkgsPath() == mockMap[KEY_INSTALLED_PKG_PATH]);
+
+    if(std::filesystem::exists(mockMap[KEY_GLOBAL_CONFIG_PATH])) {
+        CPPUNIT_ASSERT(opts->getGlobalConfigPath() == mockMap[KEY_GLOBAL_CONFIG_PATH]);
+    }
+
+    else {
+        CPPUNIT_ASSERT(opts->getGlobalConfigPath() != mockMap[KEY_GLOBAL_CONFIG_PATH]);
+    }
+    
+    if(std::filesystem::exists(mockMap[KEY_USER_CONFIG_PATH])) {
+        CPPUNIT_ASSERT(opts->getUserConfigPath() == mockMap[KEY_USER_CONFIG_PATH]);
+    }
+
+    else {
+        CPPUNIT_ASSERT(opts->getUserConfigPath() != mockMap[KEY_USER_CONFIG_PATH]);
+    }
+    
+    if(std::filesystem::exists(mockMap[KEY_SYSTEM_ROOT])) {
+        CPPUNIT_ASSERT(opts->getSystemRoot() == mockMap[KEY_SYSTEM_ROOT]);
+    }
+
+    else {
+        CPPUNIT_ASSERT(opts->getSystemRoot() != mockMap[KEY_SYSTEM_ROOT]);
+    }
+    
+    if(std::filesystem::exists(mockMap[KEY_TAR_LIBRARY_PATH])) {
+        CPPUNIT_ASSERT(opts->getTarLibraryPath() == mockMap[KEY_TAR_LIBRARY_PATH]);
+    }
+
+    else {
+        CPPUNIT_ASSERT(opts->getTarLibraryPath() != mockMap[KEY_TAR_LIBRARY_PATH]);
+    }
+    
+    if(std::filesystem::exists(mockMap[KEY_INSTALLED_PKG_PATH])) {
+        CPPUNIT_ASSERT(opts->getInstalledPkgsPath() == mockMap[KEY_INSTALLED_PKG_PATH]);
+    }
+    
+    else {
+        CPPUNIT_ASSERT(opts->getInstalledPkgsPath() != mockMap[KEY_INSTALLED_PKG_PATH]);
+    }
+    
     //CPPUNIT_ASSERT(opts->getExcludedFiles() == mockMap[KEY_EXCLUDED_FILES]);
 
     postTestApplyConfig();
@@ -175,6 +212,8 @@ int OptionsTest::preTestAddToOptMask() {
 }
 
 int OptionsTest::preTestApplyConfig() {
+    std::ofstream ofs("/tmp/pkg-mgr.conf");
+    ofs.close();
     return 0;
 }
 

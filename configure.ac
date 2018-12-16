@@ -158,7 +158,7 @@ AC_MSG_RESULT([$defaultSmartOp])
 AC_MSG_CHECKING([for the default tar library path])
 AS_IF([test "x$DEFAULT_TAR_LIBRARY_PATH" != x],
       [defaultTarLibPath="$DEFAULT_TAR_LIBRARY_PATH"],
-      [defaultTarLibPath="$prefix/var/lib/pkg-mgr/pkgs/"]
+      [defaultTarLibPath="$(prefix)/var/lib/pkg-mgr/pkgs/"]
      )
 AC_DEFINE_UNQUOTED([DEFAULT_TAR_LIBRARY_PATH],["$defaultTarLibPath"])
 AC_SUBST([defaultTarLibPath],["$defaultTarLibPath"])
@@ -167,7 +167,7 @@ AC_MSG_RESULT([$defaultTarLibPath])
 AC_MSG_CHECKING([for the installed package index path])
 AS_IF([test "x$DEFAULT_INSTALLED_PKG_PATH" != x],
       [defaultInstalledPkgPath="$DEFAULT_INSTALLED_PKG_PATH"],
-      [defaultInstalledPkgPath="$prefix/var/lib/pkg-mgr/installed/"]
+      [defaultInstalledPkgPath="$(prefix)/var/lib/pkg-mgr/installed/"]
      )
 AC_DEFINE_UNQUOTED([DEFAULT_INSTALLED_PKG_PATH],["$defaultInstalledPkgPath"])
 AC_SUBST([defaultInstalledPkgPath],["$defaultInstalledPkgPath"])
@@ -176,7 +176,7 @@ AC_MSG_RESULT([$defaultInstalledPkgPath])
 AC_MSG_CHECKING([for the default global configuration file path])
 AS_IF([test "x$DEFAULT_GLOBAL_CONFIG_PATH" != x],
       [defaultGlobalConfigPath="$DEFAULT_GLOBAL_CONFIG_PATH"],
-      [defaultGlobalConfigPath="$sysconfdir/etc/pkg-mgr.conf"]
+      [defaultGlobalConfigPath="$(sysconfdir)/pkg-mgr.conf"]
      )
 AC_DEFINE_UNQUOTED([DEFAULT_GLOBAL_CONFIG_PATH],["$defaultGlobalConfigPath"])
 AC_SUBST([defaultGlobalConfigPath],["$defaultGlobalConfigPath"])
@@ -194,7 +194,7 @@ AC_MSG_RESULT([$defaultUserConfigPath])
 AC_MSG_CHECKING([for the default system root])
 AS_IF([test "x$DEFAULT_SYSTEM_ROOT" != x],
       [defaultSystemRoot="$DEFAULT_SYSTEM_ROOT"],
-      [defaultSystemRoot="$prefix/"]
+      [defaultSystemRoot="$(prefix)/"]
      )
 AC_DEFINE_UNQUOTED([DEFAULT_SYSTEM_ROOT],["$defaultSystemRoot"])
 AC_SUBST([defaultSystemRoot],["$defaultSystemRoot"])

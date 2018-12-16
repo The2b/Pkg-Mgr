@@ -401,7 +401,7 @@ bool Options::setGlobalConfigPath(std::string gcp, bool silent) {/*{{{*/
     else {
         if(!silent) {
             fprintf(stderr,"Error: Given global configuration file path %s does not exist.\n",gcp.c_str());
-            fprintf(stderr,e.message().c_str());
+            fprintf(stderr,"%s\n",e.message().c_str());
         }
 
         return false;
@@ -645,6 +645,7 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
 
                 break;
 
+
             case MASK_SMART_OP: 
                 // Break for now, print out a warning
                 // @TODO
@@ -657,7 +658,13 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
 
             case MASK_GLOBAL_CONFIG_PATH: 
                 // @TODO Look at this
-                fprintf(stderr,"Uh... Did you put a global configuration file in your configuration file? We're already past the time where we read the configuration file, once we look at it, so I don't know what you thought you were going to accomplish with this...\n");
+                if(!silent) {
+                    fprintf(stderr,"Uh... Did you put a global configuration file in your configuration file? We're already past the time where we read the configuration file, once we look at it, so I don't know what you thought you were going to accomplish with this...\n");
+                }
+
+                if(!setGlobalConfigPath(it->second)) {
+                    return false;
+                }
 
                 break;
                                           

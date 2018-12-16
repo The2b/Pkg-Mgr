@@ -5,17 +5,15 @@ std::string execDir;
 int main( int argc, char **argv) {
     execDir = std::string(dirname(argv[0]));
 
-    CppUnit::TextUi::TestRunner mvsRunner;
-    CppUnit::TextUi::TestRunner funcRunner;
+    CppUnit::TextTestRunner mvsRunner;
+    CppUnit::TextTestRunner funcRunner;
     mvsRunner.addTest( PkgTest::memberVarSuite() );
     funcRunner.addTest( PkgTest::functionalitySuite() );
 
-    mvsRunner.run();
-    funcRunner.run();
+    mvsRunner.run("", false, true, false);
+    funcRunner.run("", false, true, false);
 
-    removeFullPath(BASE_DIR);
-
-    return 0;
+    return (-1 * (mvsRunner.result().testFailuresTotal() + funcRunner.result().testFailuresTotal()));
 }
 
 CppUnit::Test* PkgTest::memberVarSuite() {
@@ -34,6 +32,10 @@ CppUnit::Test* PkgTest::functionalitySuite() {
     funcSuite->addTest( new CppUnit::TestCaller<PkgTest>( "testUninstall", &PkgTest::testUninstall ));
     funcSuite->addTest( new CppUnit::TestCaller<PkgTest>( "testFollow", &PkgTest::testFollow ));
     funcSuite->addTest( new CppUnit::TestCaller<PkgTest>( "testUnfollow", &PkgTest::testUnfollow ));
+    funcSuite->addTest( new CppUnit::TestCaller<PkgTest>( "testPreInstallScript", &PkgTest::testPreInstallScript ));
+    funcSuite->addTest( new CppUnit::TestCaller<PkgTest>( "testPostInstallScript", &PkgTest::testPostInstallScript ));
+    funcSuite->addTest( new CppUnit::TestCaller<PkgTest>( "testPreUninstallScript", &PkgTest::testPreUninstallScript ));
+    funcSuite->addTest( new CppUnit::TestCaller<PkgTest>( "testPostUninstallScript", &PkgTest::testPostUninstallScript ));
 
     return funcSuite;
 }
@@ -76,10 +78,12 @@ void PkgTest::testPkgName() {
     preTestPkgName();
 
     for(int index = 0; index < pkgVector.size(); index++) {
+        printf("Begin pkgName test for package %d\n",index);
         Pkg pkg = *pkgVector[index];
         std::string pkgName = "test" + std::to_string(index);
 
         CPPUNIT_ASSERT( pkg.getPkgName() == pkgName );
+        printf("End pkgName test for package %d\n",index);
     }
 
     postTestPkgName();
@@ -89,11 +93,15 @@ void PkgTest::testPathname() {
     preTestPathname();
 
     for(int index = 0; index < pkgVector.size(); index++) {
+        printf("Begin pathname test for package %d\n",index);
+
         Pkg pkg = *pkgVector[index];
         std::string pkgName = "test" + std::to_string(index) + ".tar";
         std::string pkgPath = PKG_DIR + pkgName;
 
         CPPUNIT_ASSERT( pkg.getPathname() == pkgPath );
+
+        printf("End pathname test for package %d\n",index);
     }
 
     postTestPathname();
@@ -107,11 +115,17 @@ void PkgTest::testInstall() {
 
     // Install each package
     for(int index = 0; index < pkgVector.size(); index++) {
+        printf("Begin install test for package %d\n",index);
+
         Pkg pkg = *pkgVector[index];
         
         // Install the package
         int res = pkg.installPkg(FAKEROOT, INSTALLED_DIR, VERBOSITY, std::set<std::string>(), false);
-        CPPUNIT_ASSERT(res == ARCHIVE_OK || res == ARCHIVE_EOF);
+        printf("res = %d\n", res);
+
+        CPPUNIT_ASSERT((res == ARCHIVE_OK || res == ARCHIVE_EOF));
+
+        printf("End install test for package %d\n",index);
     }
 
     postTestInstall();
@@ -122,6 +136,8 @@ void PkgTest::testUninstall() {
 
     // Uninstall the packages
     for(int index = 0; index < pkgVector.size(); index++) {
+        printf("Begin uninstall test for package %d\n",index);
+
         // Save the current directory contents for later
         std::filesystem::directory_iterator di(FAKEROOT);
         
@@ -133,6 +149,8 @@ void PkgTest::testUninstall() {
             bool exists = it->exists();
             (it->path() == pkgVector[index]->getPathname()) ? CPPUNIT_ASSERT(!exists) : CPPUNIT_ASSERT(exists);
         }
+
+        printf("End uninstall test for package %d\n",index);
     }
 
     postTestUninstall();
@@ -142,6 +160,8 @@ void PkgTest::testFollow() {
     preTestFollow();
     
     for(int index = 0; index < pkgVector.size(); index++) {
+        printf("Begin follow test for package %d\n",index);
+
         pkgVector[index]->followPkg(INSTALLED_DIR, VERBOSITY);
         
         std::string filePath = INSTALLED_DIR;
@@ -149,6 +169,8 @@ void PkgTest::testFollow() {
 
         // Verify it exists
         CPPUNIT_ASSERT(std::filesystem::exists(filePath));
+
+        printf("End follow test for package %d\n",index);
     }
 
     postTestFollow();
@@ -158,6 +180,8 @@ void PkgTest::testUnfollow() {
     preTestUnfollow();
 
     for(int index = 0; index < pkgVector.size(); index++) {
+        printf("Begin unfollow test for package %d\n",index);
+
         pkgVector[index]->unfollowPkg(INSTALLED_DIR, VERBOSITY);
 
         std::string filePath = INSTALLED_DIR;
@@ -165,15 +189,26 @@ void PkgTest::testUnfollow() {
 
         // Verify it does not exist
         CPPUNIT_ASSERT(!std::filesystem::exists(filePath));
+
+        printf("End unfollow test for package %d\n",index);
     }
 
     postTestUnfollow();
 }
 
 // @TODO
-// Just have an archive with the script and nothing else. Have the script touch a file. Check for that file's existence.
+// Just have an archive with the script. Have the script touch a file. Check for that file's existence.
 void PkgTest::testPreInstallScript() {
     preTestPreInstallScript();
+
+    for(int index = 0; index < pkgVector.size(); index++) {
+        printf("Begin pre-install script test for package %d\n",index);
+
+        pkgVector[index]->execPreInstallScript(VERBOSITY);
+        CPPUNIT_ASSERT(std::filesystem::exists("/tmp/" + pkgVector[index]->getPkgName() + "-pre-install"));
+
+        printf("End pre-install script test for package %d\n",index);
+    }
 
     postTestPreInstallScript();
 }
@@ -181,17 +216,44 @@ void PkgTest::testPreInstallScript() {
 void PkgTest::testPostInstallScript() {
     preTestPostInstallScript();
 
+    for(int index = 0; index < pkgVector.size(); index++) {
+        printf("Begin post-install script test for package %d\n",index);
+
+        pkgVector[index]->execPostInstallScript(VERBOSITY);
+        CPPUNIT_ASSERT(std::filesystem::exists("/tmp/" + pkgVector[index]->getPkgName() + "-post-install"));
+
+        printf("End post-install script test for package %d\n",index);
+    }
+
     postTestPostInstallScript();
 }
 
 void PkgTest::testPreUninstallScript() {
     preTestPreUninstallScript();
 
+    for(int index = 0; index < pkgVector.size(); index++) {
+        printf("Begin pre-uninstall script test for package %d\n",index);
+
+        pkgVector[index]->execPreUninstallScript(VERBOSITY);
+        CPPUNIT_ASSERT(std::filesystem::exists("/tmp/" + pkgVector[index]->getPkgName() + "-pre-uninstall"));
+
+        printf("End pre-uninstall script test for package %d\n",index);
+    }
+
     postTestPreUninstallScript();
 }
 
 void PkgTest::testPostUninstallScript() {
     preTestPostUninstallScript();
+
+    for(int index = 0; index < pkgVector.size(); index++) {
+        printf("Begin post-uninstall script test for package %d\n",index);
+
+        pkgVector[index]->execPostUninstallScript(VERBOSITY);
+        CPPUNIT_ASSERT(std::filesystem::exists("/tmp/" + pkgVector[index]->getPkgName() + "-post-uninstall"));
+
+        printf("End post-install script test for package %d\n",index);
+    }
 
     postTestPostUninstallScript();
 }
@@ -280,6 +342,54 @@ int PkgTest::preTestUnfollow() {
     return 0;
 }
 
+int PkgTest::preTestPreInstallScript() {
+    for(int index = 0; index < pkgVector.size(); index++) {
+        std::string path = "/tmp/" + pkgVector[index]->getPkgName();
+        removeFullPath(path.c_str());
+        
+        std::string file = "/tmp/" + pkgVector[index]->getPkgName() + "-pre-install";
+        removeFullPath(file.c_str());
+    }
+
+    return 0;
+}
+
+int PkgTest::preTestPostInstallScript() {
+    for(int index = 0; index < pkgVector.size(); index++) {
+        std::string path = "/tmp/" + pkgVector[index]->getPkgName();
+        removeFullPath(path.c_str());
+        
+        std::string file = "/tmp/" + pkgVector[index]->getPkgName() + "-post-install";
+        removeFullPath(file.c_str());
+    }
+
+    return 0;
+}
+
+int PkgTest::preTestPreUninstallScript() {
+    for(int index = 0; index < pkgVector.size(); index++) {
+        std::string path = "/tmp/" + pkgVector[index]->getPkgName();
+        removeFullPath(path.c_str());
+        
+        std::string file = "/tmp/" + pkgVector[index]->getPkgName() + "-pre-uninstall";
+        removeFullPath(file.c_str());
+    }
+
+    return 0;
+}
+
+int PkgTest::preTestPostUninstallScript() {
+    for(int index = 0; index < pkgVector.size(); index++) {
+        std::string path = "/tmp/" + pkgVector[index]->getPkgName();
+        removeFullPath(path.c_str());
+        
+        std::string file = "/tmp/" + pkgVector[index]->getPkgName() + "-post-uninstall";
+        removeFullPath(file.c_str());
+    }
+
+    return 0;
+}
+
 int PkgTest::postTestMemberVars() {
     return 0;
 }
@@ -317,35 +427,51 @@ int PkgTest::postTestUnfollow() {
     return 0;
 }
 
-int PkgTest::preTestPreInstallScript() {
-    return 0;
-}
-
-int PkgTest::preTestPostInstallScript() {
-    return 0;
-}
-
-int PkgTest::preTestPreUninstallScript() {
-    return 0;
-}
-
-int PkgTest::preTestPostUninstallScript() {
-    return 0;
-}
-
 int PkgTest::postTestPreInstallScript() {
+    for(int index = 0; index < pkgVector.size(); index++) {
+        std::string path = "/tmp/" + pkgVector[index]->getPkgName();
+        removeFullPath(path.c_str());
+        
+        std::string file = "/tmp/" + pkgVector[index]->getPkgName() + "-pre-install";
+        removeFullPath(file.c_str());
+    }
+
     return 0;
 }
 
 int PkgTest::postTestPostInstallScript() {
+    for(int index = 0; index < pkgVector.size(); index++) {
+        std::string path = "/tmp/" + pkgVector[index]->getPkgName();
+        removeFullPath(path.c_str());
+        
+        std::string file = "/tmp/" + pkgVector[index]->getPkgName() + "-post-install";
+        removeFullPath(file.c_str());
+    }
+
     return 0;
 }
 
 int PkgTest::postTestPreUninstallScript() {
+    for(int index = 0; index < pkgVector.size(); index++) {
+        std::string path = "/tmp/" + pkgVector[index]->getPkgName();
+        removeFullPath(path.c_str());
+        
+        std::string file = "/tmp/" + pkgVector[index]->getPkgName() + "-pre-uninstall";
+        removeFullPath(file.c_str());
+    }
+
     return 0;
 }
 
 int PkgTest::postTestPostUninstallScript() {
+    for(int index = 0; index < pkgVector.size(); index++) {
+        std::string path = "/tmp/" + pkgVector[index]->getPkgName();
+        removeFullPath(path.c_str());
+        
+        std::string file = "/tmp/" + pkgVector[index]->getPkgName() + "-post-uninstall";
+        removeFullPath(file.c_str());
+    }
+
     return 0;
 }
 
