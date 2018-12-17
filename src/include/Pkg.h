@@ -70,6 +70,10 @@ class Pkg {
         int execPostInstallScript(unsigned int verbosity = DEFAULT_VERBOSITY);
         int execPreUninstallScript(unsigned int verbosity = DEFAULT_VERBOSITY);
         int execPostUninstallScript(unsigned int verbosity = DEFAULT_VERBOSITY);
+
+        // The following functions combine install/uninstall, follow/unfollow, and pre-/post install/uninstall scripts
+        int installPkgWithScripts(std::string root = DEFAULT_SYSTEM_ROOT, std::string installedPkgsPath = DEFAULT_INSTALLED_PKG_PATH, unsigned int verbosity = DEFAULT_VERBOSITY, std::set<std::string> exclusions = std::set<std::string>{}, bool quick = DEFAULT_SMART_OP);
+        int uninstallPkgWithScripts(std::string root = DEFAULT_SYSTEM_ROOT, std::string installedPkgsPath = DEFAULT_INSTALLED_PKG_PATH, unsigned int verbosity = DEFAULT_VERBOSITY, std::set<std::string> exclusions = std::set<std::string>{}, bool quick = DEFAULT_SMART_OP);
 };
 
 bool listAllPkgs(std::string libraryPath, unsigned int verbosity = DEFAULT_VERBOSITY);
@@ -78,5 +82,6 @@ bool openArchiveWithTarSupport(struct archive*& a, std::string archivePath, unsi
 int setArchiveEntryToFile(std::string filepath, std::string archivePath, struct archive_entry*& archiveEntryToSet, unsigned int verbosity = DEFAULT_VERBOSITY);
 int extractAndExecScript(std::string scriptName, std::string extractionDir, std::string archivePath, unsigned int verbosity = DEFAULT_VERBOSITY);
 void addScriptsToExclusions(std::set<std::string>& exclusions);
+bool moveToDir(std::string path, unsigned int verbosity = DEFAULT_VERBOSITY);
 
 #endif /* _THE2B_PKG_H */

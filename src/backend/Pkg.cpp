@@ -41,7 +41,7 @@ std::set<std::string> Pkg::buildPkgContents(unsigned int verbosity) {/*{{{*/
 
     // First, get a new archive struct and enable tar support
     archive* a = archive_read_new();
-    if(openArchiveWithTarSupport(a, getPathname().c_str()) != 0) {
+    if(!openArchiveWithTarSupport(a, pathname.c_str())) {
         return std::set<std::string>{};
     }
     
@@ -51,13 +51,6 @@ std::set<std::string> Pkg::buildPkgContents(unsigned int verbosity) {/*{{{*/
     while(archive_read_next_header(a,&ae) == ARCHIVE_OK) {
         std::string filePath = archive_entry_pathname(ae);
         pkgSet.insert(filePath);
-
-        /*
-        // Put a likely here to recover the clock cycles (most of the time...). The more files in an archive, the better performance boost this gives
-        if(likely(filePath.compare(".") != 0)) {
-            pkgSet.insert(filePath);
-        }
-        */
     }
 
     return pkgSet;
@@ -110,17 +103,6 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
         }
     }
 
-    // Run our pre-install script, if it exists
-    int res = execPreInstallScript(verbosity);
-    if(res < 0) {
-        if(verbosity != 0) {
-            fprintf(stderr,"Error: The pre-install script for the package %s returned error code %d. Bailing out...\n",pkgName.c_str(), res);
-        }
-
-        return res;
-    }
-    
-    res = 0;
 
     // Add our scripts to our exclusions
     addScriptsToExclusions(exclusions);
@@ -133,6 +115,7 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
     }
 
     int err = 0;
+    int res = 0;
 
     // Go through each header, and extract the files/folders
     while((res = archive_read_next_header(a,&ae)) == ARCHIVE_OK && err == 0) {
@@ -156,15 +139,73 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
         return err;
     }
 
+    return res;
+
+}/*}}}*/
+
+// This function is here to work around the fact that I can't use member vars/functions as default parameters
+/**
+ * Installs a package using the values set when constructing the object.
+ * Calls the superset overload with the objects derived from the constructor.
+ */
+int Pkg::installPkg(std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
+    return installPkg(pathname, root, installedPkgsPath, verbosity, exclusions, quick);
+}/*}}}*/
+
+/**
+ * Calls installPkg, followPkg, and the appropriate scripts at the approrpiate times
+ */
+int Pkg::installPkgWithScripts(std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
+    // Store our original working directory
+    char* oldDir = get_current_dir_name();
+
+    // cd into the system root
+    if(!moveToDir(root,verbosity)) {
+        return -118;
+    }
+
+    // Run our pre-install script, if it exists
+    int res = execPreInstallScript(verbosity);
+    if(res < 0) {
+        if(verbosity != 0) {
+            fprintf(stderr,"Error: The pre-install script for the package %s returned error code %d. Bailing out...\n",pkgName.c_str(), res);
+        }
+
+        return res;
+    }
+
+    // Return to the old directory
+    // Don't use moveToDir so we can be more specific with our error
+    if(chdir(oldDir) != 0) {
+        if(verbosity != 0) {
+            fprintf(stderr,"Error: Could not return to the old working directory %s after running the pre-install script. Bailing out...\n",oldDir);
+        }
+
+        return -114;
+    }
+    
+    res = installPkg(root,installedPkgsPath,verbosity,exclusions,quick);
+
     if(res == ARCHIVE_EOF) {
+        // cd into the system root
+        if(!moveToDir(root,verbosity)) {
+            return -113;
+        }
+
         // Run our post-install script, if it exists
         int scriptRes = execPostInstallScript(verbosity);
         if(scriptRes < 0) {
             if(verbosity != 0) {
                 fprintf(stderr,"Error: The post-install script for the package %s returned error code %d. Attempting to continue...\n",pkgName.c_str(),res);
             }
-            
-            return scriptRes;
+        }
+        
+        // Return to the old directory
+        // Don't use moveToDir so we can be more specific with our error
+        if(chdir(oldDir) != 0) {
+            if(verbosity != 0) {
+                fprintf(stderr,"Error: Could not return to the old working directory %s after running the post-install script. This is mostly harmless, unless tests are being run...\n",oldDir);
+            }
         }
 
         if(followPkg(installedPkgsPath, verbosity)) {
@@ -180,25 +221,9 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
         }
     }
 
-    else {
-        if(verbosity != 0) {
-            fprintf(stderr,"Error: Something went wrong when writing the package %s: %s\n",pathname.c_str(),strerror(errno));
-            fprintf(stderr,"err = %d\n",err);
-        }
+    free(oldDir);
 
-        return -1;
-    }
-
-    return err;
-}/*}}}*/
-
-// This function is here to work around the fact that I can't use member vars/functions as default parameters
-/**
- * Installs a package using the values set when constructing the object.
- * Calls the superset overload with the objects derived from the constructor.
- */
-int Pkg::installPkg(std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
-    return installPkg(pathname, root, installedPkgsPath, verbosity, exclusions, quick);
+    return res;
 }/*}}}*/
 
 // Here, we can just look at the package contents and remove the files
@@ -208,6 +233,7 @@ int Pkg::installPkg(std::string root, std::string installedPkgsPath, unsigned in
 // @TODO Implement quick and smart modes. At the moment, it only operates in quick mode
 // @TODO Decide on whether I want more sophisticated decision making, even for quick mode. Specifically, if we should delete pipes, block devices, sockets, character devices, etc
 // @TODO Add a quarentine mode, such that all files are moved to a temporary directory and then deleted from there. That will let us catch certain signals, and undo our actions
+// @TODO Seperate the installation and the scripts, have another function call them both
 /**
  * Removes the files which are contained in a package.
  *
@@ -231,18 +257,6 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
         return -111;
     }
 
-
-    // Run our post-install script, if it exists
-    int res = execPreUninstallScript(verbosity);
-    if(res < 0) {
-        // Bail out
-        if(verbosity < 0) {
-            fprintf(stderr,"The pre-uninstall script for the package %s returned an error code. Bailing out...\n",pkgName.c_str());
-        }
-
-        return res;
-    }
-
     // Add our scripts to our exclusions
     addScriptsToExclusions(exclusions);
 
@@ -251,7 +265,7 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
     // While doing so, we'll remove the files while putting directory paths into another vector
     // After we've deleted all the files, we'll delete all the now-empty directories within our package. We do this so we don't remove the root directory or anything of the like.
     int objectsRemoved = 0;
-    res = 0;
+    int res = 0;
 
     // Turn our package contents into a vector
     std::vector<std::string> pkgContentsVector(pkgContents.begin(),pkgContents.end());
@@ -271,8 +285,13 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
         // Check if its a directory. May want to check if its a symlink too...
         // @TODO
         bool isDir = std::filesystem::is_directory(filePath);
-        bool isEmpty = std::filesystem::is_empty(filePath);
         bool exists = std::filesystem::exists(filePath);
+        bool isEmpty = true;
+        
+        // This is to prevent errors arising from running is_empty on a non-existent path
+        if(exists) {
+            isEmpty = std::filesystem::is_empty(filePath);
+        }
 
         // If it's an empty directory or some sort of file, remove it
         // @TODO Make this not be dangerous with things like device files
@@ -313,7 +332,59 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
         }
     }
 
-    if(res == 0) {
+    // Finally, return our objectsRemoved count
+    return objectsRemoved;
+}/*}}}*/
+
+/**
+ * Uninstalls a package using the values set when constructing the object.
+ * Calls the superset overload with the objects derived from the constructor.
+ */
+int Pkg::uninstallPkg(std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
+    return uninstallPkg(buildPkgContents(verbosity), root, installedPkgsPath, verbosity, exclusions, quick);
+}/*}}}*/
+
+/**
+ * Calls uninstallPkg, unfollowPkg, and the appropriate scripts at the appropriate times
+ */
+int Pkg::uninstallPkgWithScripts(std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
+    // Store our old working directory
+    char* oldDir = get_current_dir_name();
+
+    // cd into the system root
+    if(!moveToDir(root,verbosity)) {
+        return -112;
+    }
+
+    // Run our pre-install script, if it exists
+    int res = execPreUninstallScript(verbosity);
+    if(res < 0) {
+        // Bail out
+        if(verbosity < 0) {
+            fprintf(stderr,"The pre-uninstall script for the package %s returned an error code. Bailing out...\n",pkgName.c_str());
+        }
+
+        return res;
+    }
+
+    // Return to the old directory
+    if(chdir(oldDir) != 0) {
+        if(verbosity != 0) {
+            fprintf(stderr,"Error: Could not return to the old working directory %s after running the pre-uninstall script. Bailing out...\n",oldDir);
+        }
+
+        return -114;
+    }
+
+    res = uninstallPkg(root, installedPkgsPath, verbosity, exclusions, quick);
+
+    // Move back into our system root for the post script
+    if(!moveToDir(root,verbosity)) {
+        return -116;
+    }
+
+    // Res is either less than 0 in case of an error, or >= 0 if there was no error (objectsRemoved)
+    if(res >= 0) {
         // Run our post-uninstall script, if it exists
         int scriptRes = execPostUninstallScript(verbosity) < 0;
         if(scriptRes < 0) {
@@ -335,16 +406,18 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
         }
     }
 
-    // Finally, return our objectsRemoved count
-    return objectsRemoved;
-}/*}}}*/
+    // Return to the old directory
+    if(chdir(oldDir) != 0) {
+        if(verbosity != 0) {
+            fprintf(stderr,"Error: Could not return to the old working directory %s after running the post-uninstall script. This is mostly harmless, unless tests are being run...\n",oldDir);
+        }
 
-/**
- * Uninstalls a package using the values set when constructing the object.
- * Calls the superset overload with the objects derived from the constructor.
- */
-int Pkg::uninstallPkg(std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
-    return uninstallPkg(buildPkgContents(verbosity), root, installedPkgsPath, verbosity, exclusions, quick);
+        return -115;
+    }
+
+    free(oldDir);
+
+    return res;
 }/*}}}*/
 
 /**
@@ -635,4 +708,25 @@ void addScriptsToExclusions(std::set<std::string>& exclusions) {/*{{{*/
     exclusions.insert(POST_INSTALL_NAME);
     exclusions.insert(PRE_UNINSTALL_NAME);
     exclusions.insert(POST_UNINSTALL_NAME);
+}/*}}}*/
+
+/**
+ * Change working directory to a given path
+ * Prints an error message on failure
+ *
+ * @param [in] std::string path
+ * @param [in] unsigned int verbosity
+ *
+ * @returns bool success
+ */
+bool moveToDir(std::string path, unsigned int verbosity) {/*{{{*/
+    if(chdir(path.c_str()) != 0) {
+        if(verbosity != 0) {
+            fprintf(stderr,"Error: Attempt to change the working directory to %s failed. %s.\n",path.c_str(),strerror(errno));
+        }
+
+        return false;
+    }
+
+    return true;
 }/*}}}*/

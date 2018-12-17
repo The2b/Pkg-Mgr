@@ -142,10 +142,15 @@ void PkgTest::testUninstall() {
         std::filesystem::directory_iterator di(FAKEROOT);
         
         // Run the function
-        pkgVector[index]->uninstallPkg(FAKEROOT,INSTALLED_DIR, VERBOSITY);
+        pkgVector[index]->uninstallPkg(FAKEROOT, INSTALLED_DIR, VERBOSITY);
 
         // Verify that packages folders are not there, and that no other folders were touched
         for(std::filesystem::directory_iterator it = std::filesystem::begin(di); it != std::filesystem::end(di); it++) {
+            // Because we have inheirent exceptions for our scripts, we need to ignore them here too
+            if(it->path().filename() == PRE_INSTALL_NAME || it->path().filename() == POST_INSTALL_NAME || it->path().filename() == PRE_UNINSTALL_NAME || it->path().filename() == POST_UNINSTALL_NAME) {
+                continue;
+            }
+
             bool exists = it->exists();
             (it->path() == pkgVector[index]->getPathname()) ? CPPUNIT_ASSERT(!exists) : CPPUNIT_ASSERT(exists);
         }
