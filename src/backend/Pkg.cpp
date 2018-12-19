@@ -521,8 +521,7 @@ bool listAllPkgs(std::string libraryPath, unsigned int verbosity) {/*{{{*/
 
     for(auto& p: di) {
         if(p.path().extension() == ".tar") {
-            printf(p.path().stem().c_str());
-            printf("\n");
+            printf("%s\n",p.path().stem().c_str());
         }
     }
 
@@ -545,8 +544,7 @@ bool listInstalledPkgs(std::string installedPkgsPath, unsigned int verbosity) {/
 
     for(auto& p: di) {
         if(!p.path().has_extension()) {
-            printf(p.path().filename().c_str());
-            printf("\n");
+            printf("%s\n",p.path().filename().c_str());
         }
     }
 

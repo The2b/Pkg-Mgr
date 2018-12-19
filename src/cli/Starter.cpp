@@ -49,6 +49,7 @@ int main(int argc, char* argv[]) {
     extern char *optarg;
     extern int optind;
 
+    // We need to define everything here such that we don't run into issues with the error-checking (non-existing files)
     Options options = Options(NOP);
 
     parseOptions(options, argv, argc, optarg, optind);

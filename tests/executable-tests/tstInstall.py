@@ -22,6 +22,7 @@ import tarfile
 __TEST_ENV_ROOT_DIR = str(os.getcwd() + "/" + os.path.dirname(sys.argv[0]) + "/install-test-env/")
 __TEST_ENV_INSTALLED_PKG_DIR = str(__TEST_ENV_ROOT_DIR + "installed/")
 __TEST_PKGS_DIR = str(os.getcwd() + "/" + os.path.dirname(sys.argv[0]) + "/test-pkgs/")
+__TEST_CONFIG_PATH = str(os.getcwd() + "/" + os.path.dirname(sys.argv[0]) + "/pkg-mgr.conf")
 __TEMP_DIR = "/tmp/"
 NUM_TEST_TARS = 5
 SCRIPT_NAMES = set(["post-install.sh", "post-uninstall.sh", "pre-install.sh", "pre-uninstall.sh"])
@@ -35,6 +36,7 @@ def isTarFileInstalledCorrectly(tarPath,systemRoot):
             if(tarMember.name in SCRIPT_NAMES):
                 if(checkScript(tarMember.name, tarPath)):
                     continue
+
                 return False
             elif(os.path.isfile(str(systemRoot + tarMember.name)) or os.path.isdir(str(systemRoot + tarMember.name))):
                 continue
@@ -48,13 +50,12 @@ def isTarFileInstalledCorrectly(tarPath,systemRoot):
     return True
 
 def extractTarFile(pkgName, tarLibPath, installedPkgPath, systemRoot, verbosity):
-    cmdStr = str(PKG_MGR_PATH + " -mi -s " + systemRoot + " -l " + tarLibPath + " -i " + installedPkgPath + " -v " + str(verbosity) + " " + pkgName)
+    cmdStr = str(PKG_MGR_PATH + " -mi -s " + systemRoot + " -l " + tarLibPath + " -i " + installedPkgPath + " -v " + str(verbosity) + " -g " + __TEST_CONFIG_PATH + " -u " + __TEST_CONFIG_PATH + " " + pkgName)
     tmpVal = os.system(cmdStr)
 
 def checkScript(scriptName, tarPath):
     # The path build here is equal to "/tmp/" + pkgName + (scriptName sans extention)
     testPath = __TEMP_DIR + os.path.basename(os.path.splitext(tarPath)[0]) + "/" + os.path.basename(scriptName)
-    print(testPath)
     if(os.path.isfile(testPath)):
         return True
     
@@ -89,7 +90,7 @@ def removeDirTree(path):
 
 def removeScriptFolders():
     for index in range(NUM_TEST_TARS):
-        path = __TEMP_DIR + "test" + index
+        path = __TEMP_DIR + "test" + str(index)
         removeDirTree(path)
 
 if __name__ == '__main__':
@@ -97,6 +98,8 @@ if __name__ == '__main__':
     if(removeDirTree(__TEST_ENV_ROOT_DIR) == -1):
         print("Permission error when attempting to remove an old test environment. Exiting...")
         sys.exit(-1)
+
+    removeScriptFolders()
 
     print("Done clearing out old test environment!")
 
@@ -111,15 +114,20 @@ if __name__ == '__main__':
         pkgName = "test" + str(index)
         ext = ".tar"
 
-        print("Installing %s to %s..." % (str(tarDir + pkgName + ext),__TEST_ENV_ROOT_DIR))
+        pkgPath = str(tarDir + pkgName + ext)
+
+        print("Installing %s to %s..." % (pkgPath,__TEST_ENV_ROOT_DIR))
 
         if(extractTarFile(pkgName, tarDir, __TEST_ENV_INSTALLED_PKG_DIR, __TEST_ENV_ROOT_DIR, 0) == -1):
-            print("Permission error while extracting the tar file %s for the installation test... Exiting" % (tarDir + pkgName + ext))
+            print("Permission error while extracting the tar file %s for the installation test... Exiting" % pkgPath)
             removeDirTree(__TEST_ENV_ROOT_DIR)
             removeScriptFolders()
             sys.exit(2)
 
-        if(isTarFileInstalledCorrectly(str(tarDir + pkgName + ext), __TEST_ENV_ROOT_DIR)):
+        print("Installation complete!")
+        print("Validating the correctness of the installation")
+
+        if(isTarFileInstalledCorrectly(pkgPath, __TEST_ENV_ROOT_DIR)):
             print("Installation test passed!")
             removeDirTree(__TEST_ENV_ROOT_DIR)
             removeScriptFolders()

@@ -392,6 +392,9 @@ bool Options::setSmartOperation(bool so, bool silent) {/*{{{*/
  * @returns bool didGlobalConfigPathExist
  */
 bool Options::setGlobalConfigPath(std::string gcp, bool silent) {/*{{{*/
+    // If the path given is not absolute, make it so
+    gcp = std::filesystem::absolute(gcp);
+    
     std::error_code e;
     if(std::filesystem::exists(gcp,e)) {
         globalConfigPath = gcp;
@@ -412,7 +415,9 @@ bool Options::setGlobalConfigPath(std::string gcp, bool silent) {/*{{{*/
 /**
  * Sets the user file path to read.
  * 
- * This is always relative to the user's home directory. Currently, there is no way to override this, as this is desired behavior, mainly so that each user can have their own programs in their home directories. This may be changed in the future, however, if I have a change of heart.
+ * If the path is relative, it will be relative to the user's home directory. There is currently no way to change this.
+ *
+ * Alternatively, if it is absolute, it will be taken literally
  *
  * Note that there will be no warning if we have a user configuration file path in the user configuration file. This is because the configuration file itself is abstracted away, such that there is no difference between a user configuration file and a global configuration file, as far as the objects are concerned, and thus no way of knowing which file the option came from. The difference is made in which is applied first (global), which will be overridden by the second (user).
  *
@@ -422,10 +427,16 @@ bool Options::setGlobalConfigPath(std::string gcp, bool silent) {/*{{{*/
  * @returns bool didUserConfigPathExist
  */
 bool Options::setUserConfigPath(std::string ucp, bool silent) {/*{{{*/
+    // If we are using a relative path, concatanate our home directory
+    std::filesystem::path realUCP = ucp;
+    if(realUCP.is_relative()) {
+        realUCP = getenv("HOME");
+        realUCP += "/" + ucp; // cat'ing does not add a directory seperator, and HOME may not have one
+    }
+
+    // Go on from there
     std::error_code e;
-    std::string realUCP = getenv("HOME");
-    realUCP += ucp;
-    if(std::filesystem::exists(std::string(realUCP),e)) {
+    if(std::filesystem::exists(realUCP,e)) {
         userConfigPath = realUCP;
         return true;
     }
@@ -433,7 +444,7 @@ bool Options::setUserConfigPath(std::string ucp, bool silent) {/*{{{*/
     else {
         if(!silent) {
             fprintf(stderr,"Error: The given user configuration path %s does not exist.\n",realUCP.c_str());
-            fprintf(stderr,e.message().c_str());
+            fprintf(stderr,"%s\n",e.message().c_str());
         }
 
         return false;
@@ -452,6 +463,9 @@ bool Options::setUserConfigPath(std::string ucp, bool silent) {/*{{{*/
  * @returns bool isSystemRootADirectory
  */
 bool Options::setSystemRoot(std::string sr, bool silent) {/*{{{*/
+    // If the path given is not absolute, make it so
+    sr = std::filesystem::absolute(sr);
+    
     // Validate the existence of the system root
     std::error_code e;
     if(std::filesystem::is_directory(sr,e)) {
@@ -462,7 +476,7 @@ bool Options::setSystemRoot(std::string sr, bool silent) {/*{{{*/
     else {
         if(!silent) {
             fprintf(stderr,"Error: System root directory %s does not exist or is not a directory.\n",sr.c_str());
-            fprintf(stderr,e.message().c_str());
+            fprintf(stderr,"%s\n",e.message().c_str());
         }
 
         return false;
@@ -472,6 +486,8 @@ bool Options::setSystemRoot(std::string sr, bool silent) {/*{{{*/
 // @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Sets the folder path in which we should look for tar packages.
+ * This has some logic to it. First of all, if the given path is not absolute, it will be concatanated to the user's current working directory
+ * Second, it will verify the folder exists, and refuse to set the variable if it does not, and return false. The calling function should handle this, since there are cases where this is not a problem
  *
  * @param std::string tarLibraryPath
  * @param bool silent
@@ -479,6 +495,9 @@ bool Options::setSystemRoot(std::string sr, bool silent) {/*{{{*/
  * @param return didTarLibraryPathExist
  */
 bool Options::setTarLibraryPath(std::string tlp, bool silent) {/*{{{*/
+    // If the path given is not absolute, make it so
+    tlp = std::filesystem::absolute(tlp);
+
     // Validate the existence of the tar library
     std::error_code e;
     if(std::filesystem::exists(tlp,e)) {
@@ -508,6 +527,9 @@ bool Options::setTarLibraryPath(std::string tlp, bool silent) {/*{{{*/
  * @returns bool didInstalledPkgIndexDirectoryExist
  */
 bool Options::setInstalledPkgsPath(std::string ipp, bool silent) {/*{{{*/
+    // If the path given is not absolute, make it so
+    ipp = std::filesystem::absolute(ipp);
+    
     // Validate the existence of the installed pkg path
     std::error_code e;
     if(std::filesystem::exists(ipp,e)) {
@@ -517,8 +539,8 @@ bool Options::setInstalledPkgsPath(std::string ipp, bool silent) {/*{{{*/
 
     else {
         if(!silent) {
-            fprintf(stderr,"Error: Installed pkg dir %s does not exist",ipp.c_str());
-            fprintf(stderr,e.message().c_str());
+            fprintf(stderr,"Error: Installed pkg dir %s does not exist\n",ipp.c_str());
+            fprintf(stderr,"%s\n",e.message().c_str());
         }
 
         return false;

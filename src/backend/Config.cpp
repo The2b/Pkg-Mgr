@@ -111,7 +111,7 @@ std::vector<std::string> Config::readConfig(std::ifstream& fileStream, unsigned 
         // We should never get here unless a RAM bit is flipped somehow...
         else {
             if(verbosity != 0) {
-                fprintf(stderr,"We left our config reader loop, but no fail bits, bad bits, or eof bits were set. This should never occur, and you should e-mail the creator about this issue. Exiting...");
+                fprintf(stderr,"We left our config reader loop, but no fail bits, bad bits, or eof bits were set. This should never occur, and you should e-mail the creator about this issue. Exiting...\n");
             }
 
             fileStream.close();
