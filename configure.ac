@@ -26,9 +26,6 @@ AC_CONFIG_SRCDIR([src])
 # @TODO
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects nostdinc])
 
-# Set our default prefix to /usr
-AC_PREFIX_DEFAULT([/usr])
-
 # Set MKDIR_P
 AC_PROG_MKDIR_P
 
@@ -159,7 +156,7 @@ AC_MSG_RESULT([$defaultInstalledPkgPath])
 AC_MSG_CHECKING([for the default global configuration file path])
 AS_IF([test "x$DEFAULT_GLOBAL_CONFIG_PATH" != x],
       [defaultGlobalConfigPath="$DEFAULT_GLOBAL_CONFIG_PATH"],
-      [defaultGlobalConfigPath="\${sysconfdir}/pkg-mgr.conf"]
+      [defaultGlobalConfigPath="\${sysconfdir}/"]
      )
 AC_SUBST([defaultGlobalConfigPath],["$defaultGlobalConfigPath"])
 AC_MSG_RESULT([$defaultGlobalConfigPath])
@@ -167,7 +164,7 @@ AC_MSG_RESULT([$defaultGlobalConfigPath])
 AC_MSG_CHECKING([for the default user configuration file path])
 AS_IF([test "x$DEFAULT_USER_CONFIG_PATH" != x],
       [defaultUserConfigPath="$DEFAULT_USER_CONFIG_PATH"],
-      [defaultUserConfigPath="/.config/pkg-mgr.conf"]
+      [defaultUserConfigPath="/.config/"]
      )
 AC_SUBST([defaultUserConfigPath],["$defaultUserConfigPath"])
 AC_MSG_RESULT([$defaultUserConfigPath])
