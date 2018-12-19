@@ -26,6 +26,9 @@ AC_CONFIG_SRCDIR([src])
 # @TODO
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects nostdinc])
 
+# Set our default prefix to /usr
+AC_PREFIX_DEFAULT([/usr])
+
 # Set MKDIR_P
 AC_PROG_MKDIR_P
 
@@ -104,22 +107,6 @@ AC_MSG_RESULT([$WITH_STDCXXFS])
 # END C++17 FILESYSTEM LIBRARY CHECH}}}
 
 # BEGIN DEFAULT DEFINITIONS{{{
-# Apparently I need to define these before autoconf will let me put an environment variable into them
-AC_DEFINE([DEFAULT_VERBOSITY],[],[Sets the default verbosity the program should use. Unless specifically set by the command-line, this is also used as the verbosity while processing  configuration files])
-AC_DEFINE([DEFAULT_SMART_OP],[],[Tells the program whether or not to use "Smart Mode" by default. This mode helps prevent accidental file overwrites or deletions. THIS IS CURRENTLY NOT IMPLEMENTED])
-AC_DEFINE([DEFAULT_TAR_LIBRARY_PATH],[],[Sets the default path which the program will look for packages. This is relative to the system root, and is *not* relative to the prefix given to configure])
-AC_DEFINE([DEFAULT_INSTALLED_PKG_PATH],[],[Sets the default path to use to store information on which packages are installed on the system. This is relative to the system root, and is *not* relative to the prefix given to configure])
-
-# @TODO Consider using configure's sysconf instead for this. Should be an easy refactor.
-AC_DEFINE([DEFAULT_GLOBAL_CONFIG_PATH],[],[Sets the default path to pull up when looking for the global configuration file. This must be absolute, and is not relative to the prefix given to configure.])
-
-AC_DEFINE([DEFAULT_USER_CONFIG_PATH],[],[Sets the default path to pull up when looking for user configuration files. This is relative to the user's home directory. It is *not* affected by configure's prefix. nor is it affected by the system root options])
-
-# @TODO Consider using configure's prefix instead for this. Should be an easy refactor.
-AC_DEFINE([DEFAULT_SYSTEM_ROOT],[],[Sets the default system root, which is attached to each relevant path, such as the tar library path or the global configuration path])
-
-AC_DEFINE([DEFAULT_EXCLUDED_FILES],[],[Sets the default files which we should ignore when installing or uninstalling packages. This has no effect on the files we use to mark installed packages. THIS IS NOT CURRENTLY IMPLEMENTED, AND LIKELY NEVER WILL BE IN CONFIGURE!! This is only here as a placeholder in case I do decide to implement it])
-
 # Get our package's default configuration options
 AC_ARG_VAR([DEFAULT_VERBOSITY],[Sets the default verbosity the program should use. Unless specifically set by the command-line, this is also used as the verbosity while processing  configuration files.])
 AC_ARG_VAR([DEFAULT_SMART_OP],[Tells the program whether or not to use "Smart Mode" by default. This mode helps prevent accidental file overwrites or deletions. THIS IS CURRENTLY NOT IMPLEMENTED!!!!])
@@ -142,7 +129,6 @@ AS_IF([test "x$DEFAULT_VERBOSITY" != x],
       [defaultVerbosity=$DEFAULT_VERBOSITY],
       [defaultVerbosity=2]
      )
-AC_DEFINE_UNQUOTED([DEFAULT_VERBOSITY],[$defaultVerbosity])
 AC_SUBST([defaultVerbosity],["$defaultVerbosity"])
 AC_MSG_RESULT([$defaultVerbosity])
 
@@ -151,34 +137,30 @@ AS_IF([test "x$DEFAULT_SMART_OP" != x],
       [defaultSmartOp=$DEFAULT_SMART_OP],
       [defaultSmartOp=true]
      )
-AC_DEFINE_UNQUOTED([DEFAULT_SMART_OP],[$defaultSmartOp])
 AC_SUBST([defaultSmartOp],["$defaultSmartOp"])
 AC_MSG_RESULT([$defaultSmartOp])
 
 AC_MSG_CHECKING([for the default tar library path])
 AS_IF([test "x$DEFAULT_TAR_LIBRARY_PATH" != x],
       [defaultTarLibPath="$DEFAULT_TAR_LIBRARY_PATH"],
-      [defaultTarLibPath="$(prefix)/var/lib/pkg-mgr/pkgs/"]
+      [defaultTarLibPath="\${prefix}/var/lib/pkg-mgr/pkgs/"]
      )
-AC_DEFINE_UNQUOTED([DEFAULT_TAR_LIBRARY_PATH],["$defaultTarLibPath"])
 AC_SUBST([defaultTarLibPath],["$defaultTarLibPath"])
 AC_MSG_RESULT([$defaultTarLibPath])
 
 AC_MSG_CHECKING([for the installed package index path])
 AS_IF([test "x$DEFAULT_INSTALLED_PKG_PATH" != x],
       [defaultInstalledPkgPath="$DEFAULT_INSTALLED_PKG_PATH"],
-      [defaultInstalledPkgPath="$(prefix)/var/lib/pkg-mgr/installed/"]
+      [defaultInstalledPkgPath="\${prefix}/var/lib/pkg-mgr/installed/"]
      )
-AC_DEFINE_UNQUOTED([DEFAULT_INSTALLED_PKG_PATH],["$defaultInstalledPkgPath"])
 AC_SUBST([defaultInstalledPkgPath],["$defaultInstalledPkgPath"])
 AC_MSG_RESULT([$defaultInstalledPkgPath])
 
 AC_MSG_CHECKING([for the default global configuration file path])
 AS_IF([test "x$DEFAULT_GLOBAL_CONFIG_PATH" != x],
       [defaultGlobalConfigPath="$DEFAULT_GLOBAL_CONFIG_PATH"],
-      [defaultGlobalConfigPath="$(sysconfdir)/pkg-mgr.conf"]
+      [defaultGlobalConfigPath="\${sysconfdir}/pkg-mgr.conf"]
      )
-AC_DEFINE_UNQUOTED([DEFAULT_GLOBAL_CONFIG_PATH],["$defaultGlobalConfigPath"])
 AC_SUBST([defaultGlobalConfigPath],["$defaultGlobalConfigPath"])
 AC_MSG_RESULT([$defaultGlobalConfigPath])
 
@@ -187,16 +169,14 @@ AS_IF([test "x$DEFAULT_USER_CONFIG_PATH" != x],
       [defaultUserConfigPath="$DEFAULT_USER_CONFIG_PATH"],
       [defaultUserConfigPath="/.config/pkg-mgr.conf"]
      )
-AC_DEFINE_UNQUOTED([DEFAULT_USER_CONFIG_PATH],["$defaultUserConfigPath"])
 AC_SUBST([defaultUserConfigPath],["$defaultUserConfigPath"])
 AC_MSG_RESULT([$defaultUserConfigPath])
 
 AC_MSG_CHECKING([for the default system root])
 AS_IF([test "x$DEFAULT_SYSTEM_ROOT" != x],
       [defaultSystemRoot="$DEFAULT_SYSTEM_ROOT"],
-      [defaultSystemRoot="$(prefix)/"]
+      [defaultSystemRoot="\${prefix}/"]
      )
-AC_DEFINE_UNQUOTED([DEFAULT_SYSTEM_ROOT],["$defaultSystemRoot"])
 AC_SUBST([defaultSystemRoot],["$defaultSystemRoot"])
 AC_MSG_RESULT([$defaultSystemRoot])
 
@@ -205,7 +185,6 @@ AS_IF([test "x$DEFAULT_EXCLUDED_FILES" != x],
       [defaultExcludedFiles=$DEFAULT_EXCLUDED_FILES],
       [defaultExcludedFiles={}]
      )
-AC_DEFINE_UNQUOTED([DEFAULT_EXCLUDED_FILES],[$defaultExcludedFiles])
 AC_SUBST([defaultExcludedFiles],["$defaultExcludedFiles"])
 AC_MSG_RESULT([$defaultExcludedFiles])
 

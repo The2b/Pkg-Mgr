@@ -1,11 +1,12 @@
 bin_PROGRAMS = pkg-mgr
-sysconf_DATA = pkg-mgr.conf
+data_pkg_mgr = pkg-mgr.conf
 
 # We also need to add our package cache dir and installed pkg dir
 install-data-local:
-	$(MKDIR_P) @defaultSystemRoot@
-	$(MKDIR_P) @defaultTarLibPath@
-	$(MKDIR_P) @defaultInstalledPkgPath@
+	$(MKDIR_P) $(defaultSystemRoot)
+	$(MKDIR_P) $(defaultTarLibPath)
+	$(MKDIR_P) $(defaultInstalledPkgPath)
+	$(MKDIR_P) $(defaultGlobalConfigPath)
 
 .PHONY: pkg-dirs
 
@@ -14,7 +15,7 @@ AM_CXXFLAGS = -O2 -g
 
 pkg_mgr_SOURCES = backend/Config.cpp backend/Options.cpp backend/Pkg.cpp cli/Starter.cpp
 
-pkg_mgr_CPPFLAGS = -I$(top_srcdir)/src/include
+pkg_mgr_CPPFLAGS = -I$(top_srcdir)/src/include -DDEFAULT_VERBOSITY='$(defaultVerbosity)' -DDEFAULT_SMART_OP='$(defaultSmartOp)' -DDEFAULT_TAR_LIBRARY_PATH='"$(defaultTarLibPath)"' -DDEFAULT_INSTALLED_PKG_PATH='"$(defaultInstalledPkgPath)"' -DDEFAULT_GLOBAL_CONFIG_PATH='"$(defaultGlobalConfigPath)"' -DDEFAULT_USER_CONFIG_PATH='"$(defaultUserConfigPath)"' -DDEFAULT_SYSTEM_ROOT='"$(defaultSystemRoot)"' -DDEFAULT_EXCLUDED_FILES='$(defaultExcludedFiles)'
 
 pkg_mgr_LDADD =
 

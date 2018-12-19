@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
                     printf("Operation: install\nCurrent package: %s\n",pkgs[index].getPkgName().c_str());
                 }
 
-                res = pkgs[index].installPkg(options.getSystemRoot(), options.getInstalledPkgsPath(), options.getVerbosity(), options.getExcludedFiles(), options.getSmartOperation());
+                res = pkgs[index].installPkgWithScripts(options.getSystemRoot(), options.getInstalledPkgsPath(), options.getVerbosity(), options.getExcludedFiles(), options.getSmartOperation());
                 if(options.getVerbosity() == 4) {
                     fprintf(stderr,"Errno is %d\n",errno);
                     if(errno != 0) {
@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
                     printf("Operation: uninstall\nCurrent package: %s\n",pkgs[index].getPkgName().c_str());
                 }
 
-                res = pkgs[index].uninstallPkg(options.getSystemRoot(), options.getInstalledPkgsPath(), options.getVerbosity(), options.getExcludedFiles(), options.getSmartOperation());
+                res = pkgs[index].uninstallPkgWithScripts(options.getSystemRoot(), options.getInstalledPkgsPath(), options.getVerbosity(), options.getExcludedFiles(), options.getSmartOperation());
                 if(options.getVerbosity() == 4) {
                     fprintf(stderr,"Errno is %d\n",errno);
                     if(errno != 0) {

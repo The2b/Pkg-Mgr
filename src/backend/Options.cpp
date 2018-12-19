@@ -488,8 +488,8 @@ bool Options::setTarLibraryPath(std::string tlp, bool silent) {/*{{{*/
 
     else {
         if(!silent) {
-            fprintf(stderr,"Error: Tar package library %s does not exist",tlp.c_str());
-            fprintf(stderr,e.message().c_str());
+            fprintf(stderr,"Error: Tar package library %s does not exist\n",tlp.c_str());
+            fprintf(stderr,"%s\n",e.message().c_str());
         }
         
         return false;

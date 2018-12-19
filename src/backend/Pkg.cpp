@@ -221,6 +221,14 @@ int Pkg::installPkgWithScripts(std::string root, std::string installedPkgsPath, 
         }
     }
 
+    else {
+        if(verbosity != 0) {
+            fprintf(stderr,"Error: The archive ran into an issue while attempting to install the package %s.  Bailing out...\n");
+        }
+
+        return -114;
+    }
+
     free(oldDir);
 
     return res;

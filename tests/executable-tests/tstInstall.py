@@ -13,6 +13,7 @@
 #   If any file is missing, return -1
 #   Do this for all 5 test packages
 
+import pdb
 import os
 import sys
 import shutil
@@ -21,7 +22,9 @@ import tarfile
 __TEST_ENV_ROOT_DIR = str(os.getcwd() + "/" + os.path.dirname(sys.argv[0]) + "/install-test-env/")
 __TEST_ENV_INSTALLED_PKG_DIR = str(__TEST_ENV_ROOT_DIR + "installed/")
 __TEST_PKGS_DIR = str(os.getcwd() + "/" + os.path.dirname(sys.argv[0]) + "/test-pkgs/")
+__TEMP_DIR = "/tmp/"
 NUM_TEST_TARS = 5
+SCRIPT_NAMES = set(["post-install.sh", "post-uninstall.sh", "pre-install.sh", "pre-uninstall.sh"])
 
 PKG_MGR_PATH = os.environ['PKG_MGR_PATH']
 
@@ -29,7 +32,11 @@ def isTarFileInstalledCorrectly(tarPath,systemRoot):
     tf = tarfile.open(tarPath)
     for tarMember in tf.getmembers():
         try:
-            if(os.path.isfile(str(systemRoot + tarMember.name)) or os.path.isdir(str(systemRoot + tarMember.name))):
+            if(tarMember.name in SCRIPT_NAMES):
+                if(checkScript(tarMember.name, tarPath)):
+                    continue
+                return False
+            elif(os.path.isfile(str(systemRoot + tarMember.name)) or os.path.isdir(str(systemRoot + tarMember.name))):
                 continue
             else:
                 print("File %s could not be found during installation test. Exiting." % (systemRoot + tarMember.name))
@@ -42,7 +49,16 @@ def isTarFileInstalledCorrectly(tarPath,systemRoot):
 
 def extractTarFile(pkgName, tarLibPath, installedPkgPath, systemRoot, verbosity):
     cmdStr = str(PKG_MGR_PATH + " -mi -s " + systemRoot + " -l " + tarLibPath + " -i " + installedPkgPath + " -v " + str(verbosity) + " " + pkgName)
-    os.system(cmdStr)
+    tmpVal = os.system(cmdStr)
+
+def checkScript(scriptName, tarPath):
+    # The path build here is equal to "/tmp/" + pkgName + (scriptName sans extention)
+    testPath = __TEMP_DIR + os.path.basename(os.path.splitext(tarPath)[0]) + "/" + os.path.basename(scriptName)
+    print(testPath)
+    if(os.path.isfile(testPath)):
+        return True
+    
+    return False
 
 def createTestEnvironment():
     err = 0
@@ -71,6 +87,11 @@ def removeDirTree(path):
 
     return 0
 
+def removeScriptFolders():
+    for index in range(NUM_TEST_TARS):
+        path = __TEMP_DIR + "test" + index
+        removeDirTree(path)
+
 if __name__ == '__main__':
     print("Cleaning up old test environment...")
     if(removeDirTree(__TEST_ENV_ROOT_DIR) == -1):
@@ -85,7 +106,7 @@ if __name__ == '__main__':
         sys.exit(-1)
     print("Test environment created successfully!")
 
-    for index in range(0,NUM_TEST_TARS):
+    for index in range(NUM_TEST_TARS):
         tarDir = str(__TEST_PKGS_DIR)
         pkgName = "test" + str(index)
         ext = ".tar"
@@ -95,13 +116,15 @@ if __name__ == '__main__':
         if(extractTarFile(pkgName, tarDir, __TEST_ENV_INSTALLED_PKG_DIR, __TEST_ENV_ROOT_DIR, 0) == -1):
             print("Permission error while extracting the tar file %s for the installation test... Exiting" % (tarDir + pkgName + ext))
             removeDirTree(__TEST_ENV_ROOT_DIR)
-            sys.exit(-1)
+            removeScriptFolders()
+            sys.exit(2)
 
         if(isTarFileInstalledCorrectly(str(tarDir + pkgName + ext), __TEST_ENV_ROOT_DIR)):
             print("Installation test passed!")
             removeDirTree(__TEST_ENV_ROOT_DIR)
+            removeScriptFolders()
             sys.exit(0)
 
         else:
             print("Error: pkg-mgr failed to install the package %s correctly. Exiting..." % (pkgName))
-            sys.exit(-1)
+            sys.exit(1)
