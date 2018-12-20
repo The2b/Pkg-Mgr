@@ -56,7 +56,7 @@ def createTestEnvironment():
 
 def removeDirTree(path):
     try:
-        shutil.rmtree(__TEST_ENV_ROOT_DIR)
+        shutil.rmtree(path)
     except FileNotFoundError:
         return 1
     except PermissionError:
@@ -94,14 +94,13 @@ if __name__ == '__main__':
 
         if(unfollowPkg(pkgName, __TEST_ENV_INSTALLED_PKG_DIR, __TEST_PKGS_DIR, 0) == -1):
             print("Permission error while writing the index file %s for the unfollow test... Exiting" % (__TEST_ENV_INSTALLED_PKG_DIR + pkgName))
-            removeDirTree(__TEST_ENV_ROOT_DIR)
             sys.exit(-1)
 
         if(isIndexFileUninstalledCorrectly(pkgName, __TEST_ENV_INSTALLED_PKG_DIR)):
             print("Unfollow test passed!")
-            removeDirTree(__TEST_ENV_ROOT_DIR)
-            sys.exit(0)
 
         else:
             print("Error: pkg-mgr failed to unfollow the package %s correctly. Exiting..." % (pkgName))
             sys.exit(-1)
+
+    removeDirTree(__TEST_ENV_ROOT_DIR)

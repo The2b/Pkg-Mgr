@@ -52,14 +52,14 @@ void PkgTest::setUp() {
     if(std::filesystem::exists(BASE_DIR)) {
         removeFullPath(BASE_DIR);
         if(std::filesystem::exists(BASE_DIR)) {
-            fprintf(stderr,"Could not clean the testing environment during the initial setup. %s\n",strerror(errno));
-            exit(-1);
+            fprintf(stderr,"Could not clean the testing environment during setup. %s\n",strerror(errno));
+            exit(1);
         }
     }
 
     if(buildTestEnvironment() == -1) {
-        fprintf(stderr,"Error: Could not create the test environment during the initial setup. %s\n",strerror(errno));
-        exit(-1);
+        fprintf(stderr,"Error: Could not create the test environment during setup. %s\n",strerror(errno));
+        exit(1);
     }
 
     buildPkgObjects();

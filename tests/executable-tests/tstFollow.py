@@ -18,7 +18,7 @@ import sys
 import shutil
 
 __TEST_ENV_ROOT_DIR = str(os.getcwd() + "/" + os.path.dirname(sys.argv[0]) + "/follow-test-env/")
-__TEST_ENV_INSTALLED_PKG_DIR = str(__TEST_ENV_ROOT_DIR + "installed/")
+__TEST_ENV_INSTALLED_PKG_DIR = str(__TEST_ENV_ROOT_DIR + "/installed/")
 __TEST_PKGS_DIR = str(os.getcwd() + "/" + os.path.dirname(sys.argv[0]) + "/test-pkgs/")
 
 NUM_TEST_TARS = 5
@@ -45,6 +45,7 @@ def createTestEnvironment():
         err = 1
     except PermissionError:
         return -1
+
     try:
         os.mkdir(__TEST_ENV_INSTALLED_PKG_DIR)
     except FileExistsError:
@@ -56,7 +57,7 @@ def createTestEnvironment():
 
 def removeDirTree(path):
     try:
-        shutil.rmtree(__TEST_ENV_ROOT_DIR)
+        shutil.rmtree(path)
     except FileNotFoundError:
         return 1
     except PermissionError:
@@ -76,6 +77,10 @@ if __name__ == '__main__':
     if(createTestEnvironment() == -1):
         print("Permission error while creating the test environment for the unfollow test... Exiting")
         sys.exit(-1)
+    elif(not os.path.isdir(__TEST_ENV_ROOT_DIR)):
+        print("The directory tree starting at %s could not be created... Exiting")
+        sys.exit(-2)
+
     print("Test environment created successfully!")
 
     for index in range(0,NUM_TEST_TARS):
@@ -83,16 +88,16 @@ if __name__ == '__main__':
 
         print("Following package %s in directory %s..." % (pkgName,__TEST_ENV_INSTALLED_PKG_DIR))
 
-        if(followPkg(pkgName, __TEST_ENV_INSTALLED_PKG_DIR, __TEST_PKGS_DIR, 0) == -1):
+        if(followPkg(pkgName, __TEST_ENV_INSTALLED_PKG_DIR, __TEST_PKGS_DIR, 4) == -1):
             print("Permission error while writing the index file %s for the follow test... Exiting" % (__TEST_ENV_INSTALLED_PKG_DIR + pkgName))
             removeDirTree(__TEST_ENV_ROOT_DIR)
             sys.exit(-1)
 
         if(isIndexFileInstalledCorrectly(pkgName, __TEST_ENV_INSTALLED_PKG_DIR)):
             print("Follow test passed!")
-            removeDirTree(__TEST_ENV_ROOT_DIR)
-            sys.exit(0)
 
         else:
             print("Error: pkg-mgr failed to follow the package %s correctly. Exiting..." % (pkgName))
             sys.exit(-1)
+
+    removeDirTree(__TEST_ENV_ROOT_DIR)

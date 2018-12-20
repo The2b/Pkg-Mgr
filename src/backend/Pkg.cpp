@@ -553,6 +553,7 @@ bool listInstalledPkgs(std::string installedPkgsPath, unsigned int verbosity) {/
 
 /**
  * Executes the pre-install shell script of the package, if it exists
+ * @TODO Allow the user to use any given temporary directory
  * 
  * @param [in] unsigned int verbosity
  *
@@ -560,13 +561,14 @@ bool listInstalledPkgs(std::string installedPkgsPath, unsigned int verbosity) {/
  */
 int Pkg::execPreInstallScript(unsigned int verbosity) {/*{{{*/
     const std::string SCRIPT_NAME = PRE_INSTALL_NAME;
-    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "/";
+    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "-pre-install/";
 
     return extractAndExecScript(SCRIPT_NAME, EXTRACTION_DIR, pathname, verbosity);
 }/*}}}*/
 
 /**
  * Executes the post-install shell script of the package, if it exists
+ * @TODO Allow the user to use any given temporary directory
  * 
  * @param [in] unsigned int verbosity
  *
@@ -574,13 +576,14 @@ int Pkg::execPreInstallScript(unsigned int verbosity) {/*{{{*/
  */
 int Pkg::execPostInstallScript(unsigned int verbosity) {/*{{{*/
     const std::string SCRIPT_NAME = POST_INSTALL_NAME;
-    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "/";
+    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "-post-install/";
 
     return extractAndExecScript(SCRIPT_NAME, EXTRACTION_DIR, pathname, verbosity);
 }/*}}}*/
 
 /**
  * Executes the pre-uninstall shell script of the package, if it exists
+ * @TODO Allow the user to use any given temporary directory
  * 
  * @param [in] unsigned int verbosity
  *
@@ -588,13 +591,14 @@ int Pkg::execPostInstallScript(unsigned int verbosity) {/*{{{*/
  */
 int Pkg::execPreUninstallScript(unsigned int verbosity) {/*{{{*/
     const std::string SCRIPT_NAME = PRE_UNINSTALL_NAME;
-    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "/";
+    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "-pre-uninstall/";
 
     return extractAndExecScript(SCRIPT_NAME, EXTRACTION_DIR, pathname, verbosity);
 }/*}}}*/
 
 /**
  * Executes the post-uninstall shell script of the package, if it exists
+ * @TODO Allow the user to use any given temporary directory
  *
  * @param [in] unsigned int verbosity
  *
@@ -602,7 +606,7 @@ int Pkg::execPreUninstallScript(unsigned int verbosity) {/*{{{*/
  */
 int Pkg::execPostUninstallScript(unsigned int verbosity) {/*{{{*/
     const std::string SCRIPT_NAME = POST_UNINSTALL_NAME;
-    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "/";
+    const std::string EXTRACTION_DIR = "/tmp/" + pkgName + "-post-uninstall/";
 
     return extractAndExecScript(SCRIPT_NAME, EXTRACTION_DIR, pathname, verbosity);
 }/*}}}*/
@@ -673,6 +677,10 @@ int extractAndExecScript(std::string scriptName, std::string extractionDir, std:
                 break;
             }
         }
+    }
+
+    if(verbosity >= 3) {
+        printf("Script %s returned %d\n",scriptName.c_str(),res);
     }
     
     // Error

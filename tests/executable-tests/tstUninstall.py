@@ -21,6 +21,7 @@ import tarfile
 __TEST_ENV_ROOT_DIR = str(os.getcwd() + "/" + os.path.dirname(sys.argv[0]) + "/uninstall-test-env/")
 __TEST_ENV_INSTALLED_PKG_DIR = str(__TEST_ENV_ROOT_DIR + "installed/")
 __TEST_PKGS_DIR = str(os.getcwd() + "/" + os.path.dirname(sys.argv[0]) + "/test-pkgs/")
+SCRIPT_NAMES = set(["pre-uninstall.sh","post-uninstall.sh"])
 NUM_TEST_TARS = 5
 
 PKG_MGR_PATH = os.environ['PKG_MGR_PATH']
@@ -54,7 +55,7 @@ def createTestEnvironment():
 
 def removeDirTree(path):
     try:
-        shutil.rmtree(__TEST_ENV_ROOT_DIR)
+        shutil.rmtree(path)
     except FileNotFoundError:
         return 1
     except PermissionError:
@@ -65,13 +66,26 @@ def removeDirTree(path):
 def isTarFileUninstalledCorrectly(pkgPath, systemRoot):
     tf = tarfile.open(pkgPath)
     for tarMember in tf.getmembers():
-        if(os.path.isfile(str(systemRoot + tarMember.name)) or os.path.isdir(str(systemRoot + tarMember.name))):
+        if(tarMember.name in SCRIPT_NAMES):
+            if(checkScript(tarMember.name, pkgPath)):
+                pass
+
+            else:
+                print("Error: The script %s was not extracted and executed correctly...")
+                return False
+
+        elif(os.path.isfile(str(systemRoot + tarMember.name)) or os.path.isdir(str(systemRoot + tarMember.name))):
             print("The file %s was still found on the system..." % str(systemRoot + tarMember.name))
             return False
 
     return True
 
-# @TODO
+def checkScript(scriptName, pkgPath):
+    pkgName = os.path.splitext(os.path.basename(pkgPath))[0]
+    path = "/tmp/" + pkgName + "/" + os.path.splitext(scriptName)[0]
+
+    return os.path.exists(path)
+
 def uninstallTarPkg(pkgName, systemRoot, tarLibraryPath, installedPkgPath, verbosity):
     cmdStr = PKG_MGR_PATH + " -mu -s " + systemRoot + " -i " + installedPkgPath + " -l " + tarLibraryPath + " -v " + str(verbosity) + " " + pkgName
     if(os.system(cmdStr) != 0):
@@ -113,9 +127,9 @@ if __name__ == '__main__':
         print("Verifying uninstalltion...")
         if(isTarFileUninstalledCorrectly(str(tarDir + pkgName + ext), __TEST_ENV_ROOT_DIR)):
             print("Uninstallation test passed!")
-            removeDirTree(__TEST_ENV_ROOT_DIR)
-            sys.exit(0)
 
         else:
             print("Error: pkg-mgr failed to uninstall the package %s correctly. Exiting..." % (pkgName))
             sys.exit(-1)
+
+    removeDirTree(__TEST_ENV_ROOT_DIR)
