@@ -2,3 +2,12 @@ Add tests for pre- and post- (un,)install scripts
 Refactor Options.cpp to use integer verbosity
 Make requirements less rigid for configure. Add more alternatives (experimental, boost for filesystem).
 grep -RI @TODO *
+
+The messages that occur when files do not exist often print out success, even when on a low verbosity (2), which can be confusing if the user does not know what this is referencing (underlying IO errors). Make these only appear at verbosity 3 or 4
+Don't let the error messages for missing config files occur on blank runs (mostly for the first run). At the very least, make them warnings, instead of saying error. The biggest issue here is the user-configuration file
+
+Install the config file to the system config directory, since that's where we're getting the info to look for it anyway
+Verify that we *CAN* set environment variables with configure. Putting them on the command line at configure-time didn't seem to work on my LFS build. Putting them on the command line worked at make-time
+Consolidate methods of setting paths for configuration and storage
+
+I noticed issues listing files with the character "." in them. They're being followed, but not listed when using -mli. They're also being listed using -mla, so I think it has to do with the "search" for files with "extentions". I'll need to look into this later.
