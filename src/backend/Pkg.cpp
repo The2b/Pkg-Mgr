@@ -543,9 +543,7 @@ bool listInstalledPkgs(std::string installedPkgsPath, unsigned int verbosity) {/
     std::filesystem::recursive_directory_iterator di(installedPkgsPath);
 
     for(auto& p: di) {
-        if(!p.path().has_extension()) {
-            printf("%s\n",p.path().filename().c_str());
-        }
+        printf("%s\n",p.path().filename().c_str());
     }
 
     return true;
