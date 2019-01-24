@@ -292,18 +292,21 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
 
         // Check if its a directory. May want to check if its a symlink too...
         // @TODO
-        bool isDir = std::filesystem::is_directory(filePath);
         bool exists = std::filesystem::exists(filePath);
+        bool isSymlink = std::filesystem::is_symlink(filePath);
+        bool isDir = false;
         bool isEmpty = true;
         
         // This is to prevent errors arising from running is_empty on a non-existent path
-        if(exists) {
+        // We also do not want to check this if it the target is a symlink, since we want to act on the symlink, regardless of its target
+        if(exists && !isSymlink) {
+            isDir = std::filesystem::is_directory(filePath);
             isEmpty = std::filesystem::is_empty(filePath);
         }
-
+        
         // If it's an empty directory or some sort of file, remove it
         // @TODO Make this not be dangerous with things like device files
-        if((isDir && isEmpty) || (exists && !isDir)) {
+        if((exists && !isDir) || (isSymlink) || (isDir && isEmpty)) {
             if(std::filesystem::remove(filePath)) {
                 // If we're here, remove returned 0. Tick our counter and move on.
                 objectsRemoved++;

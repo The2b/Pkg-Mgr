@@ -33,6 +33,8 @@ def isTarFileInstalledCorrectly(tarPath,systemRoot):
     tf = tarfile.open(tarPath)
     for tarMember in tf.getmembers():
         try:
+            path = str(systemRoot + tarMember.name)
+
             if(tarMember.name in SCRIPT_NAMES):
                 # This returns a tuple. The first index is a boolean representing success, the latter is the test path the program looked for
                 res = checkScript(tarMember.name, tarPath)
@@ -44,7 +46,7 @@ def isTarFileInstalledCorrectly(tarPath,systemRoot):
                     print("Script %s failed to extract and execute correctly" % res[1])
                     return (3,tarMember.name,res[1])
 
-            elif(os.path.isfile(str(systemRoot + tarMember.name)) or os.path.isdir(str(systemRoot + tarMember.name))):
+            elif(os.path.isfile(path) or os.path.isdir(path) or os.path.islink(path)):
                 #continue # See above
                 pass
             else:
