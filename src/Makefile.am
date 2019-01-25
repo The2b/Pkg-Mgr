@@ -6,7 +6,7 @@ install-data-local:
 systemrootdir =	$(DESTDIR)/$(defaultSystemRoot)
 tarlibdir = $(DESTDIR)/$(defaultTarLibPath)
 installedpkgdir = $(DESTDIR)/$(defaultInstalledPkgPath)
-globalconfdir = $(defaultGlobalConfigPath)
+globalconfdir = $(DESTDIR)/$(defaultGlobalConfigPath)
 
 # This is to counteract the fact that I disabled the global defeault CXXFLAGS so I could compile tests without optimization
 AM_CXXFLAGS = -O2 -g
