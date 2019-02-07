@@ -576,6 +576,7 @@ bool Options::setUserConfigPath(std::string ucp, unsigned int verbosity) {/*{{{*
     // If we are using a relative path, concatanate our home directory
     std::filesystem::path realUCP = ucp;
     if(realUCP.is_relative()) {
+        // @TODO Add more tests for the home directory
         realUCP = getenv("HOME");
         realUCP += "/" + ucp; // cat'ing does not add a directory seperator, and HOME may not have one
     }
@@ -862,6 +863,8 @@ unsigned int Options::translateMode(std::string m, bool silent) {/*{{{*/
 
 /**
  * Turns a mode string into an integer, per modeStrToInt
+ * Returns NOP on error. At this time, this should never occur. However, in the future, this will return NOP if an invalid mode is given.
+ * Currently exits if an invalid mode is given. This should be changed, and return NOP instead.
  *
  * @param std::string modeString
  * @param unsigned int verbosity
@@ -877,6 +880,8 @@ unsigned int Options::translateMode(std::string m, unsigned int verbosity) {/*{{
         if(verbosity != 0) {
             fprintf(stderr,"Error: pkg-mgr requires a valid mode of operation. Check pkg-mgr -h for more information.\n");
         }
+
+        // @TODO Make this return NOP instead, and check for NOP
         exit(-1);
     }
 

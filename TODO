@@ -6,5 +6,3 @@ The messages that occur when files do not exist often print out success, even wh
 
 Install the config file to the system config directory, since that's where we're getting the info to look for it anyway
 Consolidate methods of setting paths for configuration and storage
-
-I noticed issues listing files with the character "." in them. They're being followed, but not listed when using -mli. They're also being listed using -mla, so I think it has to do with the "search" for files with "extentions". I'll need to look into this later.
