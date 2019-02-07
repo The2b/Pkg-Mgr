@@ -61,19 +61,19 @@ void OptionsTest::testSetMode() {
 
     // Test the int version
     for(int index = 0; index < modesVector.size(); index++) {
-        opts->setMode(modesVector[index].modeIndex);
+        opts->setMode(modesVector[index].modeIndex, (unsigned int)(0));
         CPPUNIT_ASSERT(opts->getMode() == modesVector[index]);
     }
 
     // The string version
     for(int index = 0; index < modesVector.size(); index++) {
-        opts->setMode(modesVector[index].modeStr);
+        opts->setMode(modesVector[index].modeStr, (unsigned int)(0));
         CPPUNIT_ASSERT(opts->getMode() == modesVector[index]);
     }
 
     // And the mode_s version
     for(int index = 0; index < modesVector.size(); index++) {
-        opts->setMode(modesVector[index]);
+        opts->setMode(modesVector[index], (unsigned int)(0));
         CPPUNIT_ASSERT(opts->getMode() == modesVector[index]);
     }
 
@@ -88,6 +88,7 @@ void OptionsTest::testVerbosity() {
     preTestVerbosity();
 
     for(int index = 0; index < 10; index++) {
+        // This tests every version we have, to my knowledge
         bool res = opts->setVerbosity(std::to_string(index).c_str(), true);
 
         if(index < 5) {
@@ -114,7 +115,7 @@ void OptionsTest::testAddToOptMask() {
         unsigned int oldMask = opts->getOptMask();
         unsigned int valToAdd = (unsigned int)std::pow(2,index);
 
-        bool res = opts->addToOptMask(valToAdd);
+        bool res = opts->addToOptMask(valToAdd, opts->getVerbosity());
 
         CPPUNIT_ASSERT((res) && ((opts->getOptMask() - oldMask) == valToAdd));
     }

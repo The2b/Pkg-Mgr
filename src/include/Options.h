@@ -117,6 +117,7 @@ class Options {
         
         // Takes a string mode and returns the proper mode integer
         unsigned int translateMode(std::string modeStr, bool silent = false);
+        unsigned int translateMode(std::string modeStr, unsigned int verbosity = DEFAULT_VERBOSITY);
 
     public:
         // Constructors
@@ -138,26 +139,42 @@ class Options {
 
         // Setters
         bool setMode(unsigned int mode, bool silent = false);
+        bool setMode(unsigned int mode, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool setMode(std::string mode, bool silent = false);
+        bool setMode(std::string mode, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool setMode(mode_s m, bool silent = false);
+        bool setMode(mode_s m, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool setOptMask(unsigned int optMask, bool silent = false);
-        bool setVerbosity(unsigned int verbosity, bool silent = false);
-        bool setVerbosity(const char* verbosity, bool silent = false);
+        bool setOptMask(unsigned int optMask, unsigned int verbosity = DEFAULT_VERBOSITY);
+        bool setVerbosity(unsigned int verbosityLevel, bool silent = false);
+        bool setVerbosity(unsigned int verbosityLevel, unsigned int verbosity = DEFAULT_VERBOSITY);
+        bool setVerbosity(const char* verbosityLevel, bool silent = false);
+        bool setVerbosity(const char* verbosityLevel, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool setSmartOperation(bool smartOperation, bool silent = false);
+        bool setSmartOperation(bool smartOperation, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool setGlobalConfigPath(std::string globalConfigPath, bool silent = false);
+        bool setGlobalConfigPath(std::string globalConfigPath, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool setUserConfigPath(std::string userConfigPath, bool silent = false);
+        bool setUserConfigPath(std::string userConfigPath, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool setSystemRoot(std::string systemRoot, bool silent = false);
+        bool setSystemRoot(std::string systemRoot, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool setTarLibraryPath(std::string tarLibrary, bool silent = false);
+        bool setTarLibraryPath(std::string tarLibrary, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool setInstalledPkgsPath(std::string installedPkgsPath, bool silent = false);
+        bool setInstalledPkgsPath(std::string installedPkgsPath, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool setExcludedFiles(std::set<std::string> excludedFiles, bool silent = false);
+        bool setExcludedFiles(std::set<std::string> excludedFiles, unsigned int verbosity = DEFAULT_VERBOSITY);
 
         // Adds the values to the options as appropriate
         bool addToOptMask(unsigned int optMask, bool silent = false);
+        bool addToOptMask(unsigned int optMask, unsigned int verbosity = DEFAULT_VERBOSITY);
         bool addToExcludedFiles(std::string, bool silent = false);
+        bool addToExcludedFiles(std::string, unsigned int verbosity = DEFAULT_VERBOSITY);
 
         // Applies a config to the options as appropriate
         // Has logic for CLI arguments to take priority
         bool applyConfig(IConfigMap& conf, bool silent = false);
+        bool applyConfig(IConfigMap& conf, unsigned int verbosity = DEFAULT_VERBOSITY);
 };
 
 #endif

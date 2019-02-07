@@ -91,6 +91,7 @@ int main(int argc, char* argv[]) {
         if(options.getVerbosity() != 0) {
             fprintf(stderr,"Error: Specified user configuration file %s does not exist\n",options.getUserConfigPath().c_str());
         }
+        
         exit(-307);
     }
 
@@ -107,7 +108,7 @@ int main(int argc, char* argv[]) {
             if(masterConfig.getConfigMap()->find(KEY_USER_CONFIG_PATH) != masterConfig.getConfigMap()->end()) {
                 // I don't want to add this key if it isn't there, which the [] operator will. at() throws an exception if it can't find it, which is very helpful here
                 std::string userCfgPath = masterConfig.getConfigMap()->at(KEY_USER_CONFIG_PATH);
-                options.setUserConfigPath(userCfgPath);
+                options.setUserConfigPath(userCfgPath, options.getVerbosity());
             }
         }
     }
@@ -121,7 +122,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Apply the config to our current options
-    options.applyConfig(masterConfig);
+    options.applyConfig(masterConfig, options.getVerbosity());
     
     switch(options.getModeIndex()) {
         case LIST_ALL:
@@ -226,32 +227,32 @@ void parseOptions(Options& opts, char* argv[], int argc, char*& optarg, int& opt
     while((c = getopt_long(argc, argv, "hv:g:u:s:l:i:m:", getopt_options, &optind)) != -1) {
         switch(c) {
             case 'v':
-                opts.setVerbosity((unsigned int)atoi(optarg));
-                opts.addToOptMask(MASK_VERBOSE);
+                opts.setVerbosity(optarg, (unsigned int)(DEFAULT_VERBOSITY));
+                opts.addToOptMask(MASK_VERBOSE, (unsigned int)(DEFAULT_VERBOSITY));
                 break;
             case 'm':
-                opts.setMode(std::string(optarg));
-                opts.addToOptMask(MASK_MODE);
+                opts.setMode(std::string(optarg), (unsigned int)(DEFAULT_VERBOSITY));
+                opts.addToOptMask(MASK_MODE, (unsigned int)(DEFAULT_VERBOSITY));
                 break;
             case 'g':
-                opts.setGlobalConfigPath(optarg);
-                opts.addToOptMask(MASK_GLOBAL_CONFIG_PATH);
+                opts.setGlobalConfigPath(optarg, (unsigned int)(DEFAULT_VERBOSITY));
+                opts.addToOptMask(MASK_GLOBAL_CONFIG_PATH, (unsigned int)(DEFAULT_VERBOSITY));
                 break;
             case 'u':
-                opts.setUserConfigPath(optarg);
-                opts.addToOptMask(MASK_USER_CONFIG_PATH);
+                opts.setUserConfigPath(optarg, (unsigned int)(DEFAULT_VERBOSITY));
+                opts.addToOptMask(MASK_USER_CONFIG_PATH, (unsigned int)(DEFAULT_VERBOSITY));
                 break;
             case 's':
-                opts.setSystemRoot(optarg);
-                opts.addToOptMask(MASK_SYSTEM_ROOT);
+                opts.setSystemRoot(optarg, (unsigned int)(DEFAULT_VERBOSITY));
+                opts.addToOptMask(MASK_SYSTEM_ROOT, (unsigned int)(DEFAULT_VERBOSITY));
                 break;
             case 'l':
-                opts.setTarLibraryPath(optarg);
-                opts.addToOptMask(MASK_TAR_LIBRARY_PATH);
+                opts.setTarLibraryPath(optarg, (unsigned int)(DEFAULT_VERBOSITY));
+                opts.addToOptMask(MASK_TAR_LIBRARY_PATH, (unsigned int)(DEFAULT_VERBOSITY));
                 break;
             case 'i':
-                opts.setInstalledPkgsPath(optarg);
-                opts.addToOptMask(MASK_INSTALLED_PKG_PATH);
+                opts.setInstalledPkgsPath(optarg, (unsigned int)(DEFAULT_VERBOSITY));
+                opts.addToOptMask(MASK_INSTALLED_PKG_PATH, (unsigned int)(DEFAULT_VERBOSITY));
                 break;
             case 'h':
                 printHelp();

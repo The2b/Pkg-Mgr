@@ -98,16 +98,16 @@ std::set<unsigned int> validOptMaskVals = {
  * @returns Constructed Options object
  */
 Options::Options(unsigned int mode, unsigned int verbosity, bool smartOperation, unsigned int optMask, std::string globalConfigPath, std::string userConfigPath, std::string systemRoot, std::string tarLibraryPath, std::string installedPkgsPath, std::set<std::string> excludedFiles) {/*{{{*/
-    setMode(mode);
-    setVerbosity(verbosity);
-    setSmartOperation(smartOperation);
-    setGlobalConfigPath(globalConfigPath);
-    setUserConfigPath(userConfigPath);
-    setSystemRoot(systemRoot);
-    setTarLibraryPath(tarLibraryPath);
-    setInstalledPkgsPath(installedPkgsPath);
-    setExcludedFiles(excludedFiles);
-    setOptMask(optMask);
+    setMode(mode,verbosity);
+    setVerbosity(verbosity, verbosity);
+    setSmartOperation(smartOperation, verbosity);
+    setGlobalConfigPath(globalConfigPath, verbosity);
+    setUserConfigPath(userConfigPath, verbosity);
+    setSystemRoot(systemRoot, verbosity);
+    setTarLibraryPath(tarLibraryPath, verbosity);
+    setInstalledPkgsPath(installedPkgsPath, verbosity);
+    setExcludedFiles(excludedFiles, verbosity);
+    setOptMask(optMask, verbosity);
 }/*}}}*/
 
 /**
@@ -218,10 +218,11 @@ std::set<std::string> Options::getExcludedFiles() {/*{{{*/
     return excludedFiles;
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Sets a mode based on the mode_s passed to it
  * This is mostly going to be used in the background from the other two setMode functions, but can be used if you want to create your own mode_s struct variable
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param mode_struct mode
  * @param bool silent
@@ -229,13 +230,26 @@ std::set<std::string> Options::getExcludedFiles() {/*{{{*/
  * @returns bool wasModeValid
  */
 bool Options::setMode(mode_s m, bool silent) {/*{{{*/
+        return (silent ? setMode(m, (unsigned int)(0)) : setMode(m, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Sets a mode based on the mode_s passed to it
+ * This is mostly going to be used in the background from the other two setMode functions, but can be used if you want to create your own mode_s struct variable
+ *
+ * @param mode_struct mode
+ * @param unsigned int verbosity
+ *
+ * @returns bool wasModeValid
+ */
+bool Options::setMode(mode_s m, unsigned int verbosity) {/*{{{*/
     if((modes.find(m.modeIndex) != modes.end()) && (modes.at(m.modeIndex).modeStr == m.modeStr)) {
         mode = m;
         return true;
     }
 
     else {
-        if(!silent) {
+        if(verbosity != 0) {
             fprintf(stderr,"Error: Invalid mode passed to Options::setMode(mode_s m). This should never occur. Please contact the creator of the program.\n");
         }
 
@@ -243,9 +257,10 @@ bool Options::setMode(mode_s m, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Sets the mode based on the integer passed to it, which is used as an index for the "modes" map
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param unsigned int modeIndex
  * @param bool silent
@@ -253,6 +268,18 @@ bool Options::setMode(mode_s m, bool silent) {/*{{{*/
  * @returns bool wasModeValid
  */
 bool Options::setMode(unsigned int m, bool silent) {/*{{{*/
+    return (silent ? setMode(m, (unsigned int)(0)) : setMode(m, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Sets the mode based on the integer passed to it, which is used as an index for the "modes" map
+ *
+ * @param unsigned int modeIndex
+ * @param unsigned int verbosity
+ *
+ * @returns bool wasModeValid
+ */
+bool Options::setMode(unsigned int m, unsigned int verbosity) {/*{{{*/
     // Validate the mode requested
     if((modes.find(m) != modes.end())) {
         mode = modes.at(m);
@@ -260,7 +287,7 @@ bool Options::setMode(unsigned int m, bool silent) {/*{{{*/
     }
 
     else {
-        if(!silent) {
+        if(verbosity != 0) {
             fprintf(stderr,"Error: pkg-mgr requires a valid mode of operation. Check pkg-mgr -h for more details.\n");
         }
 
@@ -268,10 +295,11 @@ bool Options::setMode(unsigned int m, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Sets a mode based on the string passed to it. 
  * The string is then used as a key for the "modeStrToInt" map
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param std::string modeString
  * @param bool silent
@@ -279,14 +307,34 @@ bool Options::setMode(unsigned int m, bool silent) {/*{{{*/
  * @returns wasModeValid
  */
 bool Options::setMode(std::string m, bool silent) {/*{{{*/
-    return setMode(translateMode(m),silent);
+    return (silent ? setMode(translateMode(m, (unsigned int)(0)), (unsigned int)(0)) : setMode(translateMode(m, (unsigned int)(2)), (unsigned int)(0)));
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
+/**
+ * Sets a mode based on the string passed to it. 
+ * The string is then used as a key for the "modeStrToInt" map
+ *
+ * @param std::string modeString
+ * @param unsigned int verbosity
+ *
+ * @returns wasModeValid
+ */
+bool Options::setMode(std::string m, unsigned int verbosity) {/*{{{*/
+    if(modeStrToInt.find(m) != modeStrToInt.end()) {
+        return setMode(modeStrToInt.at(m), verbosity);
+    }
+
+    else {
+        return false;
+    }
+}/*}}}*/
+
 /**
  * Sets the option mask.
  * The option mask is used to track which options were set by the user via the CLI, such that they are not overridden by the Configs we read later
  * Consequentially, this should only be used after the options are read from the CLI
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param unsigned int optionMask
  * @param bool silent
@@ -294,13 +342,27 @@ bool Options::setMode(std::string m, bool silent) {/*{{{*/
  * @returns bool wasOptionMaskValid
  */
 bool Options::setOptMask(unsigned int o, bool silent) {/*{{{*/
+    return (silent ? setOptMask(o, (unsigned int)(0)) : setOptMask(o, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Sets the option mask.
+ * The option mask is used to track which options were set by the user via the CLI, such that they are not overridden by the Configs we read later
+ * Consequentially, this should only be used after the options are read from the CLI
+ *
+ * @param unsigned int optionMask
+ * @param unsigned int verbosity
+ * 
+ * @returns bool wasOptionMaskValid
+ */
+bool Options::setOptMask(unsigned int o, unsigned int verbosity) {/*{{{*/
     if(o < (unsigned int)std::pow(2,MASK_SIZE)) {
         optMask = o;
         return true;
     }
 
     else {
-        if(!silent) {
+        if(verbosity != 0) {
             fprintf(stderr,"Error: An invalid optMask was passed to Options::setOptMask. This should never occur. Please contact the creator of the program.\n");
         }
 
@@ -308,11 +370,12 @@ bool Options::setOptMask(unsigned int o, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Sets the verbosity to use for future operations.
  * Note that this alone does not set verbosity, but stores it
  * The value must still be passed to the operations correctly
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param unsigned int verbosityLevel
  * @param bool silent
@@ -320,6 +383,20 @@ bool Options::setOptMask(unsigned int o, bool silent) {/*{{{*/
  * @returns bool wasVerbosityValid
  */
 bool Options::setVerbosity(unsigned int v, bool silent) {/*{{{*/
+    return (silent ? setVerbosity(v, (unsigned int)(0)) : setVerbosity(v, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Sets the verbosity to use for future operations.
+ * Note that this alone does not set verbosity, but stores it
+ * The value must still be passed to the operations correctly
+ *
+ * @param unsigned int verbosityLevel
+ * @param unsigned int verbosity
+ *
+ * @returns bool wasVerbosityValid
+ */
+bool Options::setVerbosity(unsigned int v, unsigned int verbosityLevel) {/*{{{*/
     // Make sure it's between 0 and 4
     if(v >= 0 && v <= 4) {
         verbosity = v;
@@ -327,7 +404,7 @@ bool Options::setVerbosity(unsigned int v, bool silent) {/*{{{*/
     }
 
     else {
-        if(!silent) {
+        if(verbosityLevel != 0) {
             fprintf(stderr,"Error: Verbosity must be an integer between 0 and 4.\n");
         }
 
@@ -335,7 +412,26 @@ bool Options::setVerbosity(unsigned int v, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
+/**
+ * Sets the verbosity to use for future operations.
+ * Note that this alone does not set verbosity, but stores it
+ * The value must still be passed to the operations correctly
+ *
+ * This overload will fail if the second index is not '\0', since values are meant to be from 0 to 4
+ * This is also meant to be used such that the command-line option or a line from a file stream can be passed directly to it, rather than parsing it out manually
+ * If setVerbosity needs to be called from somewhere from within the program for some reason, you should probably use the unsigned int overload instead
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
+ *
+ * @param const char* verbosityLevel
+ * @param bool silent
+ * 
+ * @returns bool wasVerbosityValid
+ */
+bool Options::setVerbosity(const char* v, bool silent) {/*{{{*/
+    return (silent ? setVerbosity(v, (unsigned int)(0)) : setVerbosity(v, (unsigned int)(1)));
+}/*}}}*/
+
 /**
  * Sets the verbosity to use for future operations.
  * Note that this alone does not set verbosity, but stores it
@@ -346,17 +442,18 @@ bool Options::setVerbosity(unsigned int v, bool silent) {/*{{{*/
  * If setVerbosity needs to be called from somewhere from within the program for some reason, you should probably use the unsigned int overload instead
  *
  * @param const char* verbosityLevel
- * @param bool silent
+ * @param unsigned int verbosity
  * 
  * @returns bool wasVerbosityValid
  */
-bool Options::setVerbosity(const char* v, bool silent) {/*{{{*/
+bool Options::setVerbosity(const char* v, unsigned int verbosityLevel) {/*{{{*/
+    // Check the second character, and make sure it is a null terminator
     if(v[1] == '\0') {
-        return setVerbosity((unsigned int)atoi(v), silent);
+        return setVerbosity((unsigned int)atoi(v), verbosityLevel);
     }
 
     else {
-        if(!silent) {
+        if(verbosityLevel != 0) {
             fprintf(stderr,"Error: Verbosity must be an integer between 0 and 4.\n");
         }
 
@@ -364,12 +461,13 @@ bool Options::setVerbosity(const char* v, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
-// @TODO Write an overload for const char* and/or string instead of bool
+// @TODO Write an overload for const char* and/or string instead of bool for the first parameter
 /**
  * Sets whether or not we are going to use smart operation.
  * Currently, the smart operation itself is not implemented; However, we have this here for the future
  * This function always returns true, since there cannot be an invalid value without error'ing out when the function is called
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param bool smartOperation
  * @param bool silent
@@ -377,14 +475,30 @@ bool Options::setVerbosity(const char* v, bool silent) {/*{{{*/
  * @returns bool wasSmartOperationValid
  */
 bool Options::setSmartOperation(bool so, bool silent) {/*{{{*/
+    // I know this isn't required, and it's so fucking weird that the compiler will almost certainly not realize that the verbosity doesn't matter, but the additional overhead is so low, I'm okay trading it for consistency.
+    return (silent ? setSmartOperation(so, (unsigned int)(0)) : setSmartOperation(so, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Sets whether or not we are going to use smart operation.
+ * Currently, the smart operation itself is not implemented; However, we have this here for the future
+ * This function always returns true, since there cannot be an invalid value without error'ing out when the function is called
+ *
+ * @param bool smartOperation
+ * @param unsigned int verbosity
+ *
+ * @returns bool wasSmartOperationValid
+ */
+bool Options::setSmartOperation(bool so, unsigned int verbosity) {/*{{{*/
     smartOperation = so;
     return true;
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Sets the global configuration file path to read.
  * This option is only really helpful in the command line. Any other usage (AKA when used in a configuration file) will print out a warning that it does nothing, and the file path supplied is being ignored
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param std::string globalConfigPath
  * @param bool silent
@@ -392,6 +506,19 @@ bool Options::setSmartOperation(bool so, bool silent) {/*{{{*/
  * @returns bool didGlobalConfigPathExist
  */
 bool Options::setGlobalConfigPath(std::string gcp, bool silent) {/*{{{*/
+    return (silent ? setGlobalConfigPath(gcp, (unsigned int)(0)) : setGlobalConfigPath(gcp, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Sets the global configuration file path to read.
+ * This option is only really helpful in the command line. Any other usage (AKA when used in a configuration file) will print out a warning that it does nothing, and the file path supplied is being ignored
+ *
+ * @param std::string globalConfigPath
+ * @param unsigned int verbosity
+ *
+ * @returns bool didGlobalConfigPathExist
+ */
+bool Options::setGlobalConfigPath(std::string gcp, unsigned int verbosity) {/*{{{*/
     // If the path given is not absolute, make it so
     gcp = std::filesystem::absolute(gcp);
     
@@ -402,7 +529,7 @@ bool Options::setGlobalConfigPath(std::string gcp, bool silent) {/*{{{*/
     }
 
     else {
-        if(!silent) {
+        if(verbosity != 0) {
             fprintf(stderr,"Error: Given global configuration file path %s does not exist.\n",gcp.c_str());
             fprintf(stderr,"%s\n",e.message().c_str());
         }
@@ -411,7 +538,26 @@ bool Options::setGlobalConfigPath(std::string gcp, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
+/**
+ * Sets the user file path to read.
+ * 
+ * If the path is relative, it will be relative to the user's home directory. There is currently no way to change this.
+ *
+ * Alternatively, if it is absolute, it will be taken literally
+ *
+ * Note that there will be no warning if we have a user configuration file path in the user configuration file. This is because the configuration file itself is abstracted away, such that there is no difference between a user configuration file and a global configuration file, as far as the objects are concerned, and thus no way of knowing which file the option came from. The difference is made in which is applied first (global), which will be overridden by the second (user).
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
+ *
+ * @param std::string userConfigPath
+ * @param bool silent
+ *
+ * @returns bool didUserConfigPathExist
+ */
+bool Options::setUserConfigPath(std::string ucp, bool silent) {/*{{{*/
+    return (silent ? setUserConfigPath(ucp, (unsigned int)(0)) : setUserConfigPath(ucp, (unsigned int)(2)));
+}/*}}}*/
+
 /**
  * Sets the user file path to read.
  * 
@@ -422,11 +568,11 @@ bool Options::setGlobalConfigPath(std::string gcp, bool silent) {/*{{{*/
  * Note that there will be no warning if we have a user configuration file path in the user configuration file. This is because the configuration file itself is abstracted away, such that there is no difference between a user configuration file and a global configuration file, as far as the objects are concerned, and thus no way of knowing which file the option came from. The difference is made in which is applied first (global), which will be overridden by the second (user).
  *
  * @param std::string userConfigPath
- * @param bool silent
+ * @param unsigned int verbosity
  *
  * @returns bool didUserConfigPathExist
  */
-bool Options::setUserConfigPath(std::string ucp, bool silent) {/*{{{*/
+bool Options::setUserConfigPath(std::string ucp, unsigned int verbosity) {/*{{{*/
     // If we are using a relative path, concatanate our home directory
     std::filesystem::path realUCP = ucp;
     if(realUCP.is_relative()) {
@@ -442,7 +588,7 @@ bool Options::setUserConfigPath(std::string ucp, bool silent) {/*{{{*/
     }
 
     else {
-        if(!silent) {
+        if(verbosity != 0) {
             fprintf(stderr,"Error: The given user configuration path %s does not exist.\n",realUCP.c_str());
             fprintf(stderr,"%s\n",e.message().c_str());
         }
@@ -451,11 +597,12 @@ bool Options::setUserConfigPath(std::string ucp, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Sets the system root to operate on.
  *
  * Packages will be installed to or removed using this directory as a prefix.
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param std::string systemRoot
  * @param bool silent
@@ -463,6 +610,20 @@ bool Options::setUserConfigPath(std::string ucp, bool silent) {/*{{{*/
  * @returns bool isSystemRootADirectory
  */
 bool Options::setSystemRoot(std::string sr, bool silent) {/*{{{*/
+    return (silent ? setSystemRoot(sr, (unsigned int)(0)) : setSystemRoot(sr, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Sets the system root to operate on.
+ *
+ * Packages will be installed to or removed using this directory as a prefix.
+ *
+ * @param std::string systemRoot
+ * @param unsigned int verbosity
+ *
+ * @returns bool isSystemRootADirectory
+ */
+bool Options::setSystemRoot(std::string sr, unsigned int verbosity) {/*{{{*/
     // If the path given is not absolute, make it so
     sr = std::filesystem::absolute(sr);
     
@@ -474,7 +635,7 @@ bool Options::setSystemRoot(std::string sr, bool silent) {/*{{{*/
     }
 
     else {
-        if(!silent) {
+        if(verbosity != 0) {
             fprintf(stderr,"Error: System root directory %s does not exist or is not a directory.\n",sr.c_str());
             fprintf(stderr,"%s\n",e.message().c_str());
         }
@@ -483,11 +644,12 @@ bool Options::setSystemRoot(std::string sr, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Sets the folder path in which we should look for tar packages.
  * This has some logic to it. First of all, if the given path is not absolute, it will be concatanated to the user's current working directory
  * Second, it will verify the folder exists, and refuse to set the variable if it does not, and return false. The calling function should handle this, since there are cases where this is not a problem
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param std::string tarLibraryPath
  * @param bool silent
@@ -495,6 +657,20 @@ bool Options::setSystemRoot(std::string sr, bool silent) {/*{{{*/
  * @param return didTarLibraryPathExist
  */
 bool Options::setTarLibraryPath(std::string tlp, bool silent) {/*{{{*/
+    return (silent ? setTarLibraryPath(tlp, (unsigned int)(0)) : setTarLibraryPath(tlp, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Sets the folder path in which we should look for tar packages.
+ * This has some logic to it. First of all, if the given path is not absolute, it will be concatanated to the user's current working directory
+ * Second, it will verify the folder exists, and refuse to set the variable if it does not, and return false. The calling function should handle this, since there are cases where this is not a problem
+ *
+ * @param std::string tarLibraryPath
+ * @param unsigned int verbosity
+ *
+ * @param return didTarLibraryPathExist
+ */
+bool Options::setTarLibraryPath(std::string tlp, unsigned int verbosity) {/*{{{*/
     // If the path given is not absolute, make it so
     tlp = std::filesystem::absolute(tlp);
 
@@ -506,7 +682,7 @@ bool Options::setTarLibraryPath(std::string tlp, bool silent) {/*{{{*/
     }
 
     else {
-        if(!silent) {
+        if(verbosity != 0) {
             fprintf(stderr,"Error: Tar package library %s does not exist\n",tlp.c_str());
             fprintf(stderr,"%s\n",e.message().c_str());
         }
@@ -515,11 +691,12 @@ bool Options::setTarLibraryPath(std::string tlp, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Sets the folder path where index files of which packages are and are not installed are stored.
  *
  * This folder is where the files created by and removed by the follow/unfollow operations (called either on their own or by install/uninstall) are stored.
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param std::string setInstalledPkgIndexDirectory
  * @param bool silent
@@ -527,6 +704,20 @@ bool Options::setTarLibraryPath(std::string tlp, bool silent) {/*{{{*/
  * @returns bool didInstalledPkgIndexDirectoryExist
  */
 bool Options::setInstalledPkgsPath(std::string ipp, bool silent) {/*{{{*/
+    return (silent ? setInstalledPkgsPath(ipp, (unsigned int)(0)) : setInstalledPkgsPath(ipp, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Sets the folder path where index files of which packages are and are not installed are stored.
+ *
+ * This folder is where the files created by and removed by the follow/unfollow operations (called either on their own or by install/uninstall) are stored.
+ *
+ * @param std::string setInstalledPkgIndexDirectory
+ * @param unsigned int verbosity
+ *
+ * @returns bool didInstalledPkgIndexDirectoryExist
+ */
+bool Options::setInstalledPkgsPath(std::string ipp, unsigned int verbosity) {/*{{{*/
     // If the path given is not absolute, make it so
     ipp = std::filesystem::absolute(ipp);
     
@@ -538,7 +729,7 @@ bool Options::setInstalledPkgsPath(std::string ipp, bool silent) {/*{{{*/
     }
 
     else {
-        if(!silent) {
+        if(verbosity != 0) {
             fprintf(stderr,"Error: Installed pkg dir %s does not exist\n",ipp.c_str());
             fprintf(stderr,"%s\n",e.message().c_str());
         }
@@ -547,7 +738,24 @@ bool Options::setInstalledPkgsPath(std::string ipp, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
+/**
+ * Sets the files which should be ignored when installing or uninstalling packages.
+ *
+ * The actual implementation of excluded files is not complete. As such, this option currently does nothing.
+ *
+ * Always returns true
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
+ *
+ * @param std::set<std::string> excludedFileSet
+ * @param bool silent
+ *
+ * @returns bool true
+ */
+bool Options::setExcludedFiles(std::set<std::string> ef, bool silent) {/*{{{*/
+    return (silent ? setExcludedFiles(ef, (unsigned int)(0)) : setExcludedFiles(ef, (unsigned int)(2)));
+}/*}}}*/
+
 /**
  * Sets the files which should be ignored when installing or uninstalling packages.
  *
@@ -556,20 +764,21 @@ bool Options::setInstalledPkgsPath(std::string ipp, bool silent) {/*{{{*/
  * Always returns true
  *
  * @param std::set<std::string> excludedFileSet
- * @param bool silent
+ * @param unsigned int verbosity
  *
  * @returns bool true
  */
-bool Options::setExcludedFiles(std::set<std::string> ef, bool silent) {/*{{{*/
+bool Options::setExcludedFiles(std::set<std::string> ef, unsigned int verbosity) {/*{{{*/
     excludedFiles = ef;
     return true;
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * OR's a given value with the current option mask.
  *
  * This is the recommended usage for option masks. The input should always be a power of 2, and is checked against the set "validOptMasks". Calling this function with 0 as the first argument does nothing.
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param unsigned int optMaskToAdd
  * @param bool silent
@@ -577,6 +786,20 @@ bool Options::setExcludedFiles(std::set<std::string> ef, bool silent) {/*{{{*/
  * @returns wasOptMaskValid
  */
 bool Options::addToOptMask(unsigned int opt, bool silent) {/*{{{*/
+    return (silent ? addToOptMask(opt, (unsigned int)(0)) : addToOptMask(opt, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * OR's a given value with the current option mask.
+ *
+ * This is the recommended usage for option masks. The input should always be a power of 2, and is checked against the set "validOptMasks". Calling this function with 0 as the first argument does nothing.
+ *
+ * @param unsigned int optMaskToAdd
+ * @param unsigned int verbosity
+ *
+ * @returns wasOptMaskValid
+ */
+bool Options::addToOptMask(unsigned int opt, unsigned int verbosity) {/*{{{*/
     // Validate the optMask value
     if(validOptMaskVals.find(opt) != validOptMaskVals.end()) {
         optMask |= opt;
@@ -584,7 +807,7 @@ bool Options::addToOptMask(unsigned int opt, bool silent) {/*{{{*/
     }
 
     else {
-        if(!silent) {
+        if(verbosity != 0) {
             fprintf(stderr,"Error: An invalid optMask value was passed to Options\n");
         }
         
@@ -592,11 +815,12 @@ bool Options::addToOptMask(unsigned int opt, bool silent) {/*{{{*/
     }
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * This adds the file path given to the excluded files set. Currently, however, the usage of that set is not implemented. As such, this option currently does not do anything.
  *
  * Always returns true
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param std::string pathToAdd
  * @param bool silent
@@ -604,13 +828,28 @@ bool Options::addToOptMask(unsigned int opt, bool silent) {/*{{{*/
  * @returns bool true
  */
 bool Options::addToExcludedFiles(std::string path, bool silent) {/*{{{*/
+    return (silent ? addToExcludedFiles(path, (unsigned int)(0)) : addToExcludedFiles(path, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * This adds the file path given to the excluded files set. Currently, however, the usage of that set is not implemented. As such, this option currently does not do anything.
+ *
+ * Always returns true
+ *
+ * @param std::string pathToAdd
+ * @param unsigned int verbosity
+ *
+ * @returns bool true
+ */
+bool Options::addToExcludedFiles(std::string path, unsigned int verbosity) {/*{{{*/
     excludedFiles.insert(path);
     return true;
 }/*}}}*/
 
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Turns a mode string into an integer, per modeStrToInt
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param std::string modeString
  * @param bool silent
@@ -618,12 +857,24 @@ bool Options::addToExcludedFiles(std::string path, bool silent) {/*{{{*/
  * @returns unsigned int modeIndex
  */
 unsigned int Options::translateMode(std::string m, bool silent) {/*{{{*/
+    return (silent ? translateMode(m, (unsigned int)(0)) : translateMode(m,(unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Turns a mode string into an integer, per modeStrToInt
+ *
+ * @param std::string modeString
+ * @param unsigned int verbosity
+ *
+ * @returns unsigned int modeIndex
+ */
+unsigned int Options::translateMode(std::string m, unsigned int verbosity) {/*{{{*/
     if(modeStrToInt.find(m) != modeStrToInt.end()) {
         return modeStrToInt.at(m);
     }
 
     else {
-        if(!silent) {
+        if(verbosity != 0) {
             fprintf(stderr,"Error: pkg-mgr requires a valid mode of operation. Check pkg-mgr -h for more information.\n");
         }
         exit(-1);
@@ -633,13 +884,12 @@ unsigned int Options::translateMode(std::string m, bool silent) {/*{{{*/
     return NOP;
 }/*}}}*/
 
-// @TODO Test
-// @TODO Verbosity
-// @TODO Refactor this to have an actual integer verbosity level like everything else
 /**
  * Applies a Config object (or any object implementing IConfigMap, in Config.h) to the Options object which calls this function.
  *
  * Any matching keys are overridden, and thus user configurations should be read last, such that the user's own options take priority over the global configuration file. Values set by the user via CLI are processed first, however. To avoid overwriting the user's manual options, this function checks against the optMask for whether or not the option was set via CLI. If so, the configuration file is ignored.
+ *
+ * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
  * @param IConfigMap& configMapObject
  * @param bool silent
@@ -647,6 +897,20 @@ unsigned int Options::translateMode(std::string m, bool silent) {/*{{{*/
  * @returns bool wasApplicationSuccessful
  */
 bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
+    return (silent ? applyConfig(conf, (unsigned int)(0)) : applyConfig(conf, (unsigned int)(2)));
+}/*}}}*/
+
+/**
+ * Applies a Config object (or any object implementing IConfigMap, in Config.h) to the Options object which calls this function.
+ *
+ * Any matching keys are overridden, and thus user configurations should be read last, such that the user's own options take priority over the global configuration file. Values set by the user via CLI are processed first, however. To avoid overwriting the user's manual options, this function checks against the optMask for whether or not the option was set via CLI. If so, the configuration file is ignored.
+ *
+ * @param IConfigMap& configMapObject
+ * @param unsigned int verbosity
+ *
+ * @returns bool wasApplicationSuccessful
+ */
+bool Options::applyConfig(IConfigMap& conf, unsigned int verbosity) {/*{{{*/
     std::map<std::string, std::string> confMap = *conf.getConfigMap();
     unsigned int mask = optMask;
 
@@ -660,7 +924,7 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
                 // Make sure we don't have quiet or verbose set by the user
                 if(((mask & MASK_VERBOSE) == 0)) {
                     // Translate the config value to a proper value
-                    if(!setVerbosity(it->second.c_str())) {
+                    if(!setVerbosity(it->second.c_str(), verbosity)) {
                         return false;
                     }
                 }
@@ -671,7 +935,7 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
             case MASK_SMART_OP: 
                 // Break for now, print out a warning
                 // @TODO
-                if(!silent) {
+                if(verbosity != 0) {
                     fprintf(stderr,"Warning: Smart mode is not yet implemented. Ignoring...\n");
                 }
 
@@ -680,11 +944,11 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
 
             case MASK_GLOBAL_CONFIG_PATH: 
                 // @TODO Look at this
-                if(!silent) {
+                if(verbosity != 0) {
                     fprintf(stderr,"Uh... Did you put a global configuration file in your configuration file? We're already past the time where we read the configuration file, once we look at it, so I don't know what you thought you were going to accomplish with this...\n");
                 }
 
-                if(!setGlobalConfigPath(it->second)) {
+                if(!setGlobalConfigPath(it->second, verbosity)) {
                     return false;
                 }
 
@@ -699,7 +963,7 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
             case MASK_SYSTEM_ROOT: 
                 // Validation here is handled in the packages "installPkg" function
                 if((mask & MASK_SYSTEM_ROOT) == 0) {
-                    if(!setSystemRoot(it->second)) {
+                    if(!setSystemRoot(it->second, verbosity)) {
                         return false;
                     }
                 }
@@ -710,7 +974,7 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
             case MASK_TAR_LIBRARY_PATH: 
                 // Validation here is handled in the packages "installPkg" function
                 if((mask & MASK_TAR_LIBRARY_PATH) == 0) {
-                    if(!setTarLibraryPath(it->second)) {
+                    if(!setTarLibraryPath(it->second, verbosity)) {
                         return false;
                     }
                 }
@@ -720,7 +984,7 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
 
             case MASK_INSTALLED_PKG_PATH: 
                 if((mask & MASK_INSTALLED_PKG_PATH) == 0) {
-                    if(!setInstalledPkgsPath(it->second)) {
+                    if(!setInstalledPkgsPath(it->second, verbosity)) {
                         return false;
                     }
                 }
@@ -731,7 +995,7 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
             case MASK_EXCLUDED_FILES: 
                 if((mask & MASK_EXCLUDED_FILES) == 0) {
                     //@TODO
-                    if(!silent) {
+                    if(verbosity != 0) {
                         fprintf(stderr,"Warning: Excluded files not yet implemented...\n");
                     }
                 }
@@ -740,7 +1004,7 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
                                       
 
             default: 
-                if(!silent) {
+                if(verbosity != 0) {
                     fprintf(stderr,"Warning: Unrecognized configuration option %s\n. Attempting to continue normally...",it->first.c_str());
                 }
         }
