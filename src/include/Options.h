@@ -85,6 +85,14 @@
 // The number of bits the mask uses
 #define MASK_SIZE 9
 
+/**
+ * @brief Used to store the current mode and its associated string
+ *
+ * @details The point of this is to avoid map lookups when printing messages.
+ * The overloaded >, <, and == operators also assist in ordering the operations
+ * To this point, I segregate the operations which require additional arguments (install, uninstall, follow, unfollow, etc) from
+ * the ones that do not (list-all, list-installed, etc). By comparing their index, it offers a quick way to check whether or not we expect additional arguments.
+ */
 struct mode_s {
     unsigned int modeIndex = NOP;
     std::string modeStr = NOP_KEY;
@@ -102,6 +110,14 @@ struct mode_s {
     }
 };
 
+/**
+ * @class Options
+ *
+ * @brief Stores the runtime options built from configuration files, compile-time defaults, and command-line options
+ *
+ * @details While it is mostly a warehouse for runtime options, it also offers the functions for applying a parsed configuration file to the current runtime options, 
+ * as well as a single point for validation of options from every source. Since every source needs to use our functions to set our variables, we can make sure they are all valid in one place.
+ */
 class Options {
     private:
         unsigned int optMask;

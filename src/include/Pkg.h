@@ -40,6 +40,15 @@
 #define likely(x) __builtin_expect(static_cast<bool>(x), 1)
 #define unlikely(x) __builtin_expect(static_cast<bool>(x), 0)
 
+/**
+ * @class Pkg
+ * 
+ * @brief This class is a representation of all of the information and actions used for a package
+ *
+ * @details This class has functions for various actions to use for packages. This includes installing, uninstalling, following, and unfollowing packages.
+ * The programs to run the pre- and post- action scripts are also in this class.
+ * The pathname of the package, as well as the name of the package, is stored in this class as well.
+ */
 class Pkg {
     friend bool operator ==(const Pkg& a, const Pkg& b);
     

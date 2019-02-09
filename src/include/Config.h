@@ -30,13 +30,26 @@
 // Our delimiter
 #define DELIM_CHAR '='
 
-// This is the minimum we need exposed for other classes usage, and therefore unit testing other functions. Specifically, Options applyConfig
+/**
+ * @class IConfigMap
+ * 
+ * @brief This is the minimum we need exposed for other classes usage
+ *
+ * @details In pparticular, Options applyConfig function uses this interface
+ * This interface is used to make unit testing said function far easier, as I can simply return a constant map.
+ */
 class IConfigMap {
     public:
         virtual std::map<std::string, std::string>* getConfigMap() = 0;
 };
 
-// NOTE: Valid keys are defined in configKeys in Options.cpp
+/**
+ * @class Config
+ * 
+ * @brief This class is used to read, parse, and store data from configuration files or the command-line
+ * 
+ * @details Valid keys are defined in configKeys in Options.cpp
+ */
 class Config : public IConfigMap {
     friend void mergeConfig(IConfigMap& baseConfig, IConfigMap& newConfig, unsigned int verbosity = 2);
     

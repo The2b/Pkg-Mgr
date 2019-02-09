@@ -9,7 +9,7 @@
 #include "Config.h"
 
 /**
- * A constructor for a Config object, which represents a file holding various configuration options for the package manager
+ * @brief A constructor for a Config object, which represents a file holding various configuration options for the package manager
  *
  * @param [in] std::string path, The path to the configuration file
  * @param [in] unsigned int verbosity, The verbosity level to use while reading the configuration file; between 0 and 4
@@ -25,7 +25,7 @@ Config::Config(std::string path, unsigned int verbosity, char delim) {/*{{{*/
 }/*}}}*/
 
 /**
- * A destructor used to guarentee the file streams are closed when we destroy the object
+ * @brief A destructor used to guarentee the file streams are closed when we destroy the object
  *
  * @return NULL
  */
@@ -34,7 +34,7 @@ Config::~Config() {/*{{{*/
 }/*}}}*/
 
 /**
- * Returns the pathname of the Config object
+ * @brief Returns the pathname of the Config object
  *
  * @return std::string pathname
  */
@@ -43,10 +43,13 @@ std::string Config::getPathname() {/*{{{*/
 }/*}}}*/
 
 /**
- * Returns a vector of strings, each one representing a single line from the configuration file this Config object represents
- * Because this is rarely (never, at the time of writing this) going to be used, this function merely reads the file each time it is called
+ * @brief Returns a vector of strings, each one representing a single line from the configuration file this Config object represents
+ * 
+ * @details Because this is rarely (never, at the time of writing this) going to be used, this function merely reads the file each time it is called
  * Because of this, it is not guarenteed to be equal to the configVals map, which is the parsed version of the configuration file
  * This design choice was made because the little-to-zero usage doesn't justify the potential memory cost of holding the entire file in memory until the object is destroyed
+ *
+ * @deprecated For the reasons above
  * 
  * @return std::vector<std::string> configStrings
  */
@@ -56,8 +59,7 @@ std::vector<std::string> Config::getConfigStrings() {/*{{{*/
 }/*}}}*/
 
 /**
- * Returns a map which has both keys and values of std::string
- * The map represents the parsed configuration file
+ * @brief Returns a map which represents keys and values for the current configuration
  *
  * @return std::map<std::string, std::string> parsedConfigVals
  */
@@ -68,7 +70,7 @@ std::map<std::string, std::string>* Config::getConfigMap() {/*{{{*/
 // Error checking should be based on the size of the vector (ie not 0)
 // @TODO Make the error more specific
 /**
- * Reads through the configuration file and creates a vector of strings where each index represents a line from the configuration file
+ * @brief Reads through the configuration file and creates a vector of strings where each index represents a line from the configuration file
  *
  * @param [in] std::ifstream& [in] configFileStream, an open, good filestream
  * @param [in] unsigned int verbosity, the verbosity to use while reading the configuration file
@@ -131,7 +133,9 @@ std::vector<std::string> Config::readConfig(std::ifstream& fileStream, unsigned 
 
 // @TODO Make this such that comment characters can appear anywhere, not just as the first character
 /**
- * A function used to parse a string vector, usually created by readConfig
+ * @brief A function used to parse a string vector
+ * 
+ * @details This string vector is usually created by readConfig
  * You can escape a delimiter with a \
  * Note that if this occurs, the actual string passed will escape the backslash, resulting in "\\"
  * If the first character is equal to COMMENT_CHAR (defined by a pre-processor directive in Config.h, # by default), the line is ignored entirely
@@ -188,9 +192,7 @@ std::map<std::string, std::string> Config::parseConfig(std::vector<std::string> 
 }/*}}}*/
 
 /**
- * Find the location of the first unescaped delimiter in a given string
- * The escape character is currently hard-coded to \
- * @TODO Fix the hard-coded nature if the escape character
+ * @brief Find the location of the first unescaped delimiter in a given string
  *
  * @param [in] std::string str, the string to search through
  * @param [in] const char delim, the character to delimit on
@@ -223,7 +225,11 @@ int findDelim(std::string str,const char delim) {/*{{{*/
 }/*}}}*/
 
 /**
- * Checks to see if a given filestream is open, and if it is, close it
+ * @brief Checks to see if a given filestream is open, and if it is, close it
+ * 
+ * @warning This function will likely be moved outside of the Config class itself in the future. Regardless, I would avoid using this function until that happens. For usage regarding the Config object's stream, use the overload Config::closeStream() with 0 arguments instead
+ *
+ * @TODO Move this generic overload outside of the Config class. I have no clue why I put it in there to begin with.
  *
  * @param [in] std::ifstream& fileStream, the filestream to close
  *
@@ -238,7 +244,9 @@ bool Config::closeStream(std::ifstream& fileStream) {/*{{{*/
 }/*}}}*/
 
 /**
- * A shortcut to execute closeStream on the filestream associated with the Config object used to call the function
+ * @brief A shortcut to execute closeStream on the filestream associated with the Config object used to call the function
+ *
+ * @details This function exists because I cannot use function calls as default arguments. This simply calls the overloaded function with the Config's filestream
  *
  * @return bool isClosed, the opposite of Config.confFileStream.is_open()
  */
@@ -247,7 +255,7 @@ bool Config::closeStream() {/*{{{*/
 }/*}}}*/
 
 /**
- * Checks to see if a given filestream is closed, and if it is, open in
+ * @brief Checks to see if a given filestream is closed, and if it is, open in
  *
  * @param [in] std::ifstream& fileStream, the filestream to open
  *
@@ -262,7 +270,7 @@ bool Config::openStream(std::ifstream& fileStream) {/*{{{*/
 }/*}}}*/
 
 /**
- * A shortcut to execute openStream on the filestream associated with the Config object used to call the function
+ * @brief A shortcut to execute openStream on the filestream associated with the Config object used to call the function
  *
  * @return bool isOpen, Config.confFileStream.is_open()
  */
@@ -270,10 +278,10 @@ bool Config::openStream() {/*{{{*/
     return openStream(confFileStream);
 }/*}}}*/
 
-// @TODO Add consistency between using getConfigMap() and Config.configVals
 /**
- * Merge a new config map into and on top of the base config
- * Adds all the keys (and their values) unique to newConfig to baseConfig
+ * @brief Overlay a new config map on top of the base config
+ * 
+ * @details Adds all the keys (and their values) unique to newConfig to baseConfig
  * Replaces all the values w/ keys they share with the newConfig values
  *
  * @param [in,out] IConfigMap& baseConfig, the IConfigMap-implementing object to apply the second Config object's data onto

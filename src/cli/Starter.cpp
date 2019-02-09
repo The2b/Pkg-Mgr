@@ -20,12 +20,21 @@
 #include "Config.h"
 #include "Pkg.h"
 
-// @TODO Remove this, check for the stem, NOT the full name, since we can't guarentee that they'll just be tars
+// @TODO Remove this, check for the stem, NOT the full name, since we can't guarentee that they'll just be tars in the future
 #define DEFAULT_EXTENSION ".tar"
 
-// @TODO See if I can move this to a header file
-// @TODO Add an exclusions option
-// @TODO Add a smart option
+/**
+ * @brief This stores the command-line options our program looks for
+ *
+ * @details This stores the long-name of the options, the short flags, whether or not they require additional arguments, as well as a flag for how the variable is internally treated.
+ * For more details, look into getopt_long()
+ *
+ * @TODO See if I can move this to a header file
+ *       Doing so breaks some things for me, if the header file is included from multiple places. Include guards did not fix this for me, somehow . I'm not sure if there's any good way to use this in a header file, nor am I sure there's a good reason to, if the function is not referenced in multiple places (as this one).
+ *
+ * @TODO Add an "excluded files" option
+ * @TODO Add a "smart op" option
+ */
 struct option getopt_options[] =
 {
     { "verbosity",              required_argument,  0,  'v' },
@@ -40,10 +49,17 @@ struct option getopt_options[] =
 };
 
 // Forward declaration of functions
-void printHelp();
+/**
+ * @brief Parses command-line options
+ */
 void parseOptions(Options& opts, char* argv[], int argc, char*& optarg, int& optind);
 
-int main(int argc, char* argv[]) {
+/**
+ * @brief Prints out the help message to stdout
+ */
+void printHelp();
+
+int main(int argc, char* argv[]) {/*{{{*/
 
     // getopt vars
     extern char *optarg;
@@ -218,9 +234,9 @@ int main(int argc, char* argv[]) {
                 break;
         }
     }
-}
+}/*}}}*/
 
-void parseOptions(Options& opts, char* argv[], int argc, char*& optarg, int& optind) {
+void parseOptions(Options& opts, char* argv[], int argc, char*& optarg, int& optind) {/*{{{*/
     int c;
 
     // Parse our options and react accordingly
@@ -262,10 +278,9 @@ void parseOptions(Options& opts, char* argv[], int argc, char*& optarg, int& opt
                 exit(-300);
         }
     }
-}
+}/*}}}*/
 
-// @TODO
-void printHelp() {
+void printHelp() {/*{{{*/
     printf("Usage: pkg-mgr [-h] [-v n] [-g /path/to/file] [-u /path/to/file] [-s /path/to/sys/root/] [-l /path/to/pkgs] [-i /path/to/installed/pkgs] -m mode package(s)\n");
     printf("\n");
     printf("    -m, --mode: The mode of operation; one of [i]nstall, [u]ninstall, [f]ollow, [u]n[f]ollow, [l]ist-[a]ll, [l]ist-[i]nstalled\n");
@@ -278,4 +293,4 @@ void printHelp() {
     printf("    -h, --help: Print this help message\n");
     printf("\n");
     printf("Any number of packages can be listed, unless in one of the list modes. Packages will be operated on from left to right.\n");
-}
+}/*}}}*/
