@@ -51,7 +51,7 @@ class IConfigMap {
  * @details Valid keys are defined in configKeys in Options.cpp
  */
 class Config : public IConfigMap {
-    friend void mergeConfig(IConfigMap& baseConfig, IConfigMap& newConfig, unsigned int verbosity = 2);
+    friend void mergeConfig(IConfigMap& baseConfig, IConfigMap& newConfig, unsigned int verbosity = DEFAULT_VERBOSITY);
     
     private:
         bool isOpen;
@@ -62,12 +62,12 @@ class Config : public IConfigMap {
         // @TODO I may not need this. I'll need to see if this is even useful/worth the memory after being parsed
         std::vector<std::string> readVals;
 
-        std::vector<std::string> readConfig(std::ifstream& fileStream, unsigned int verbosity = 2);
-        std::map<std::string, std::string> parseConfig(std::vector<std::string> rawStrs, unsigned int verbosity = 2, char delim = DELIM_CHAR);
+        std::vector<std::string> readConfig(std::ifstream& fileStream, unsigned int verbosity = DEFAULT_VERBOSITY);
+        std::map<std::string, std::string> parseConfig(std::vector<std::string> rawStrs, unsigned int verbosity = DEFAULT_VERBOSITY, char delim = DELIM_CHAR);
 
     public:
         // This one has a verbosity argument such that we can use verbosity before actually reading it from the config file and applying it to the options
-        Config(std::string path = "/dev/null", unsigned int verbosity = 2, char delim = DELIM_CHAR);
+        Config(std::string path = "/dev/null", unsigned int verbosity = DEFAULT_VERBOSITY, char delim = DELIM_CHAR);
         ~Config();
         std::string getPathname();
         std::vector<std::string> getConfigStrings();
