@@ -1,0 +1,124 @@
+\hypertarget{Options_8h}{}\section{Options.\+h File Reference}
+\label{Options_8h}\index{Options.h@{Options.h}}
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$getopt.\+h$>$}\newline
+{\ttfamily \#include $<$cmath$>$}\newline
+{\ttfamily \#include $<$string$>$}\newline
+{\ttfamily \#include $<$set$>$}\newline
+{\ttfamily \#include $<$filesystem$>$}\newline
+{\ttfamily \#include $<$system\+\_\+error$>$}\newline
+{\ttfamily \#include \char`\"{}Config.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}config.\+h\char`\"{}}\newline
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structmode__s}{mode\+\_\+s}}
+\begin{DoxyCompactList}\small\item\em Used to store the current mode and its associated string. \end{DoxyCompactList}\item 
+class \mbox{\hyperlink{classOptions}{Options}}
+\begin{DoxyCompactList}\small\item\em Stores the runtime options built from configuration files, compile-\/time defaults, and command-\/line options. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{Options_8h_a20610841bdaddedcf51131de8f973ed9}\label{Options_8h_a20610841bdaddedcf51131de8f973ed9}} 
+\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+V\+E\+R\+B\+O\+S\+I\+TY}~2
+\item 
+\mbox{\Hypertarget{Options_8h_aee33012ac0d1a609e7e413ee1a13076e}\label{Options_8h_aee33012ac0d1a609e7e413ee1a13076e}} 
+\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+S\+M\+A\+R\+T\+\_\+\+OP}~true
+\item 
+\mbox{\Hypertarget{Options_8h_a8dddc1efe4d8a12ad9a75a2e0affdadb}\label{Options_8h_a8dddc1efe4d8a12ad9a75a2e0affdadb}} 
+\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+G\+L\+O\+B\+A\+L\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+A\+TH}~\char`\"{}/etc/pkg-\/mgr.\+conf\char`\"{}
+\item 
+\mbox{\Hypertarget{Options_8h_a4ab9c0d612a481e79eb6c348aea0df73}\label{Options_8h_a4ab9c0d612a481e79eb6c348aea0df73}} 
+\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+U\+S\+E\+R\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+A\+TH}~\char`\"{}/.config/pkg-\/mgr.\+conf\char`\"{}
+\item 
+\mbox{\Hypertarget{Options_8h_a748097e465307b16fe5c07095c48e6f8}\label{Options_8h_a748097e465307b16fe5c07095c48e6f8}} 
+\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+S\+Y\+S\+T\+E\+M\+\_\+\+R\+O\+OT}~\char`\"{}/\char`\"{}
+\item 
+\mbox{\Hypertarget{Options_8h_aad6d42af05f46c98e846a044bbc2b32a}\label{Options_8h_aad6d42af05f46c98e846a044bbc2b32a}} 
+\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+T\+A\+R\+\_\+\+L\+I\+B\+R\+A\+R\+Y\+\_\+\+P\+A\+TH}~\char`\"{}/var/lib/pkg-\/mgr/pkgs/\char`\"{}
+\item 
+\mbox{\Hypertarget{Options_8h_a00f5d62c32b2d76d11eb17726ceb7b09}\label{Options_8h_a00f5d62c32b2d76d11eb17726ceb7b09}} 
+\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+I\+N\+S\+T\+A\+L\+L\+E\+D\+\_\+\+P\+K\+G\+\_\+\+P\+A\+TH}~\char`\"{}/var/lib/pkg-\/mgr/pkgs/\char`\"{}
+\item 
+\mbox{\Hypertarget{Options_8h_a6729a4b5bc3a537e02b2625ec0b1aecb}\label{Options_8h_a6729a4b5bc3a537e02b2625ec0b1aecb}} 
+\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+E\+X\+C\+L\+U\+D\+E\+D\+\_\+\+F\+I\+L\+ES}~\{\}
+\item 
+\mbox{\Hypertarget{Options_8h_a0009c1e7470a0b70146eb60cddf8cd6e}\label{Options_8h_a0009c1e7470a0b70146eb60cddf8cd6e}} 
+\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+O\+P\+T\+\_\+\+M\+A\+SK}~0
+\item 
+\mbox{\Hypertarget{Options_8h_a9763e49f65cb6ebd835fe03afde5a8e4}\label{Options_8h_a9763e49f65cb6ebd835fe03afde5a8e4}} 
+\#define {\bfseries I\+N\+S\+T\+A\+LL}~0
+\item 
+\mbox{\Hypertarget{Options_8h_a23bcaa981a017d668ae800fe6cf896df}\label{Options_8h_a23bcaa981a017d668ae800fe6cf896df}} 
+\#define {\bfseries U\+N\+I\+N\+S\+T\+A\+LL}~1
+\item 
+\mbox{\Hypertarget{Options_8h_a04fb2960994665c4826fb9df66d4d835}\label{Options_8h_a04fb2960994665c4826fb9df66d4d835}} 
+\#define {\bfseries F\+O\+L\+L\+OW}~2
+\item 
+\mbox{\Hypertarget{Options_8h_aa77a63d5bf944527d7c1b5a338a8f645}\label{Options_8h_aa77a63d5bf944527d7c1b5a338a8f645}} 
+\#define {\bfseries U\+N\+F\+O\+L\+L\+OW}~3
+\item 
+\mbox{\Hypertarget{Options_8h_af97822dd2204688ad850d3f4fd1b1c46}\label{Options_8h_af97822dd2204688ad850d3f4fd1b1c46}} 
+\#define {\bfseries L\+I\+S\+T\+\_\+\+A\+LL}~4
+\item 
+\mbox{\Hypertarget{Options_8h_a07d404b5f399b94cf0cd9b1adac9d8d7}\label{Options_8h_a07d404b5f399b94cf0cd9b1adac9d8d7}} 
+\#define {\bfseries L\+I\+S\+T\+\_\+\+I\+N\+S\+T\+A\+L\+L\+ED}~5
+\item 
+\mbox{\Hypertarget{Options_8h_a129e782209cb45803638bd4338b3bce3}\label{Options_8h_a129e782209cb45803638bd4338b3bce3}} 
+\#define {\bfseries S\+E\+A\+R\+CH}~6
+\item 
+\mbox{\Hypertarget{Options_8h_a3b60a202dfdcee621372e62aaf7d04f3}\label{Options_8h_a3b60a202dfdcee621372e62aaf7d04f3}} 
+\#define {\bfseries O\+W\+N\+ER}~7
+\item 
+\mbox{\Hypertarget{Options_8h_a773175d74e73776d69c3e538f17de1ee}\label{Options_8h_a773175d74e73776d69c3e538f17de1ee}} 
+\#define {\bfseries I\+M\+P\+O\+RT}~8
+\item 
+\mbox{\Hypertarget{Options_8h_a1a8797c156b7ed7beaefab0074a96942}\label{Options_8h_a1a8797c156b7ed7beaefab0074a96942}} 
+\#define {\bfseries P\+U\+R\+GE}~9
+\item 
+\mbox{\Hypertarget{Options_8h_a700f88377bf36711b711f69b06c52f5d}\label{Options_8h_a700f88377bf36711b711f69b06c52f5d}} 
+\#define {\bfseries N\+OP}~99
+\item 
+\mbox{\Hypertarget{Options_8h_a9263b3e7260b13ca89cff5f10a3d9a29}\label{Options_8h_a9263b3e7260b13ca89cff5f10a3d9a29}} 
+\#define {\bfseries N\+O\+P\+\_\+\+K\+EY}~\char`\"{}N\+O\+N\+E\+\_\+\+O\+F\+\_\+\+T\+H\+E\+\_\+\+A\+B\+O\+VE\char`\"{}
+\item 
+\mbox{\Hypertarget{Options_8h_ae303f03af2a80015d9ebd8a3ad073fa1}\label{Options_8h_ae303f03af2a80015d9ebd8a3ad073fa1}} 
+\#define {\bfseries M\+A\+S\+K\+\_\+\+V\+E\+R\+B\+O\+SE}~1
+\item 
+\mbox{\Hypertarget{Options_8h_adde466098944d02bb5a421af8562ac90}\label{Options_8h_adde466098944d02bb5a421af8562ac90}} 
+\#define {\bfseries M\+A\+S\+K\+\_\+\+S\+M\+A\+R\+T\+\_\+\+OP}~2
+\item 
+\mbox{\Hypertarget{Options_8h_a89046d454c956583ea41c689fe55ab9f}\label{Options_8h_a89046d454c956583ea41c689fe55ab9f}} 
+\#define {\bfseries M\+A\+S\+K\+\_\+\+M\+O\+DE}~4
+\item 
+\mbox{\Hypertarget{Options_8h_a8649bc23f98ee9237ecbe93c0c321058}\label{Options_8h_a8649bc23f98ee9237ecbe93c0c321058}} 
+\#define {\bfseries M\+A\+S\+K\+\_\+\+G\+L\+O\+B\+A\+L\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+A\+TH}~8
+\item 
+\mbox{\Hypertarget{Options_8h_a2989fa4b85d1c864604056af519ea6d4}\label{Options_8h_a2989fa4b85d1c864604056af519ea6d4}} 
+\#define {\bfseries M\+A\+S\+K\+\_\+\+U\+S\+E\+R\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+A\+TH}~16
+\item 
+\mbox{\Hypertarget{Options_8h_a9c31063af45e3734f94abaa4638475d6}\label{Options_8h_a9c31063af45e3734f94abaa4638475d6}} 
+\#define {\bfseries M\+A\+S\+K\+\_\+\+S\+Y\+S\+T\+E\+M\+\_\+\+R\+O\+OT}~32
+\item 
+\mbox{\Hypertarget{Options_8h_ab731122845ca3b284eadac8a852f2e03}\label{Options_8h_ab731122845ca3b284eadac8a852f2e03}} 
+\#define {\bfseries M\+A\+S\+K\+\_\+\+T\+A\+R\+\_\+\+L\+I\+B\+R\+A\+R\+Y\+\_\+\+P\+A\+TH}~64
+\item 
+\mbox{\Hypertarget{Options_8h_a0ffd3059751710043e2f711940f7fcd2}\label{Options_8h_a0ffd3059751710043e2f711940f7fcd2}} 
+\#define {\bfseries M\+A\+S\+K\+\_\+\+I\+N\+S\+T\+A\+L\+L\+E\+D\+\_\+\+P\+K\+G\+\_\+\+P\+A\+TH}~128
+\item 
+\mbox{\Hypertarget{Options_8h_aa869fb8609ee2e1774dae0323ca37e14}\label{Options_8h_aa869fb8609ee2e1774dae0323ca37e14}} 
+\#define {\bfseries M\+A\+S\+K\+\_\+\+E\+X\+C\+L\+U\+D\+E\+D\+\_\+\+F\+I\+L\+ES}~256
+\item 
+\mbox{\Hypertarget{Options_8h_a1b61ddc31ce309189929a66808e857c5}\label{Options_8h_a1b61ddc31ce309189929a66808e857c5}} 
+\#define {\bfseries M\+A\+S\+K\+\_\+\+S\+I\+ZE}~9
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\begin{DoxyAuthor}{Author}
+Thomas Lenz \href{mailto:thomas.lenz96@gmail.com}{\texttt{ thomas.\+lenz96@gmail.\+com}} AS The2b 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+12 November 2018 @project Package Manager
+\end{DoxyDate}
+@error -\/500 

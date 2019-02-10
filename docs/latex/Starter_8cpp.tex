@@ -1,0 +1,78 @@
+\hypertarget{Starter_8cpp}{}\section{Starter.\+cpp File Reference}
+\label{Starter_8cpp}\index{Starter.cpp@{Starter.cpp}}
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$map$>$}\newline
+{\ttfamily \#include $<$system\+\_\+error$>$}\newline
+{\ttfamily \#include \char`\"{}Options.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Config.\+h\char`\"{}}\newline
+{\ttfamily \#include \char`\"{}Pkg.\+h\char`\"{}}\newline
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{Starter_8cpp_a50c4a2a581dca5fc00a17ca01c6bf8a4}\label{Starter_8cpp_a50c4a2a581dca5fc00a17ca01c6bf8a4}} 
+\#define {\bfseries D\+E\+F\+A\+U\+L\+T\+\_\+\+E\+X\+T\+E\+N\+S\+I\+ON}~\char`\"{}.tar\char`\"{}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{Starter_8cpp_ae8677647dca2d2c18b237c53832daf80}\label{Starter_8cpp_ae8677647dca2d2c18b237c53832daf80}} 
+void \mbox{\hyperlink{Starter_8cpp_ae8677647dca2d2c18b237c53832daf80}{parse\+Options}} (\mbox{\hyperlink{classOptions}{Options}} \&opts, char $\ast$argv\mbox{[}$\,$\mbox{]}, int argc, char $\ast$\&optarg, int \&optind)
+\begin{DoxyCompactList}\small\item\em Parses command-\/line options. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{Starter_8cpp_a0d20b69b0ad703df78459e1033d5c1d4}\label{Starter_8cpp_a0d20b69b0ad703df78459e1033d5c1d4}} 
+void \mbox{\hyperlink{Starter_8cpp_a0d20b69b0ad703df78459e1033d5c1d4}{print\+Help}} ()
+\begin{DoxyCompactList}\small\item\em Prints out the help message to stdout. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{Starter_8cpp_a0ddf1224851353fc92bfbff6f499fa97}\label{Starter_8cpp_a0ddf1224851353fc92bfbff6f499fa97}} 
+int {\bfseries main} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+struct option \mbox{\hyperlink{Starter_8cpp_a3db5ce5ad4afcd5cae2c1ffc268238f9}{getopt\+\_\+options}} \mbox{[}$\,$\mbox{]}
+\begin{DoxyCompactList}\small\item\em This stores the command-\/line options our program looks for. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\begin{DoxyAuthor}{Author}
+Thomas Lenz \href{mailto:thomas.lenz96@gmail.com}{\texttt{ thomas.\+lenz96@gmail.\+com}} AS The2b 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+12 November 2018 @project Package Manager
+\end{DoxyDate}
+@error -\/300
+
+pkg-\/mgr \mbox{[}-\/dv\mbox{]} \mbox{[}-\/c /path/to/config/file\mbox{]} \mbox{[}-\/r /path/to/system/root/\mbox{]} \mbox{[}-\/l /path/to/tarball/library/\mbox{]} \mbox{[}-\/i /path/to/installed/pkg/directory/\mbox{]} -\/m command \mbox{[}command-\/specific-\/options...\mbox{]}
+
+@\+T\+O\+DO Revamp error codes @\+T\+O\+DO Make any function which calls exit outside of this file instead return false or -\/1, and check for that here. That\textquotesingle{}ll make testing easier. @\+T\+O\+DO Break some of these things apart. There\textquotesingle{}s too much here for a main script. 
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{Starter_8cpp_a3db5ce5ad4afcd5cae2c1ffc268238f9}\label{Starter_8cpp_a3db5ce5ad4afcd5cae2c1ffc268238f9}} 
+\index{Starter.cpp@{Starter.cpp}!getopt\_options@{getopt\_options}}
+\index{getopt\_options@{getopt\_options}!Starter.cpp@{Starter.cpp}}
+\subsubsection{\texorpdfstring{getopt\_options}{getopt\_options}}
+{\footnotesize\ttfamily struct option getopt\+\_\+options\mbox{[}$\,$\mbox{]}}
+
+{\bfseries Initial value\+:}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{=}
+\DoxyCodeLine{\{}
+\DoxyCodeLine{    \{ \textcolor{stringliteral}{"verbosity"},              required\_argument,  0,  \textcolor{charliteral}{'v'} \},}
+\DoxyCodeLine{    \{ \textcolor{stringliteral}{"global-config"},          required\_argument,  0,  \textcolor{charliteral}{'g'} \},}
+\DoxyCodeLine{    \{ \textcolor{stringliteral}{"user-config"},            required\_argument,  0,  \textcolor{charliteral}{'u'} \},}
+\DoxyCodeLine{    \{ \textcolor{stringliteral}{"system-root"},            required\_argument,  0,  \textcolor{charliteral}{'s'} \},}
+\DoxyCodeLine{    \{ \textcolor{stringliteral}{"package-library"},        required\_argument,  0,  \textcolor{charliteral}{'l'} \},}
+\DoxyCodeLine{    \{ \textcolor{stringliteral}{"installed-pkg-library"},  required\_argument,  0,  \textcolor{charliteral}{'i'} \},}
+\DoxyCodeLine{    \{ \textcolor{stringliteral}{"mode"},                   required\_argument,  0,  \textcolor{charliteral}{'m'} \},}
+\DoxyCodeLine{    \{ \textcolor{stringliteral}{"help"},                   no\_argument,        0,  \textcolor{charliteral}{'h'} \},}
+\DoxyCodeLine{    \{ 0,                        0,                  0,  0   \}}
+\DoxyCodeLine{\}}
+
+\end{DoxyCode}
+
+
+This stores the command-\/line options our program looks for. 
+
+This stores the long-\/name of the options, the short flags, whether or not they require additional arguments, as well as a flag for how the variable is internally treated. For more details, look into getopt\+\_\+long()
+
+@\+T\+O\+DO See if I can move this to a header file Doing so breaks some things for me, if the header file is included from multiple places. Include guards did not fix this for me, somehow . I\textquotesingle{}m not sure if there\textquotesingle{}s any good way to use this in a header file, nor am I sure there\textquotesingle{}s a good reason to, if the function is not referenced in multiple places (as this one).
+
+@\+T\+O\+DO Add an \char`\"{}excluded files\char`\"{} option @\+T\+O\+DO Add a \char`\"{}smart op\char`\"{} option 

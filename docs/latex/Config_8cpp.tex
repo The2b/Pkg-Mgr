@@ -1,57 +1,63 @@
-\hypertarget{Config_8cpp}{}\section{src/backend/\+Config.cpp File Reference}
-\label{Config_8cpp}\index{src/backend/\+Config.\+cpp@{src/backend/\+Config.\+cpp}}
+\hypertarget{Config_8cpp}{}\section{Config.\+cpp File Reference}
+\label{Config_8cpp}\index{Config.cpp@{Config.cpp}}
 {\ttfamily \#include \char`\"{}Config.\+h\char`\"{}}\newline
 \subsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
 int \mbox{\hyperlink{Config_8cpp_aa32ac7eb2aa1d776644ed19f0618bda6}{find\+Delim}} (std\+::string str, const char delim)
-\item 
-void \mbox{\hyperlink{Config_8cpp_af2f6f4618d5583b4b5d3ab0ff5f2fc48}{merge\+Config}} (I\+Config\+Map \&base\+Config, I\+Config\+Map \&new\+Config, unsigned int verbosity)
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Find the location of the first unescaped delimiter in a given string. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{Config_8cpp_af2f6f4618d5583b4b5d3ab0ff5f2fc48}{merge\+Config}} (\mbox{\hyperlink{classIConfigMap}{I\+Config\+Map}} \&base\+Config, \mbox{\hyperlink{classIConfigMap}{I\+Config\+Map}} \&new\+Config, unsigned int verbosity)
+\begin{DoxyCompactList}\small\item\em Overlay a new config map on top of the base config. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
 \begin{DoxyAuthor}{Author}
-Thomas Lenz \href{mailto:thomas.lenz96@gmail.com}{\tt thomas.\+lenz96@gmail.\+com} AS The2b 
+Thomas Lenz \href{mailto:thomas.lenz96@gmail.com}{\texttt{ thomas.\+lenz96@gmail.\+com}} AS The2b 
 \end{DoxyAuthor}
 \begin{DoxyDate}{Date}
-11 November 2018  Package Manager
+11 November 2018 @project Package Manager
 \end{DoxyDate}
--\/200 
+@error -\/200 
 
 \subsection{Function Documentation}
 \mbox{\Hypertarget{Config_8cpp_aa32ac7eb2aa1d776644ed19f0618bda6}\label{Config_8cpp_aa32ac7eb2aa1d776644ed19f0618bda6}} 
-\index{Config.\+cpp@{Config.\+cpp}!find\+Delim@{find\+Delim}}
-\index{find\+Delim@{find\+Delim}!Config.\+cpp@{Config.\+cpp}}
-\subsubsection{\texorpdfstring{find\+Delim()}{findDelim()}}
+\index{Config.cpp@{Config.cpp}!findDelim@{findDelim}}
+\index{findDelim@{findDelim}!Config.cpp@{Config.cpp}}
+\subsubsection{\texorpdfstring{findDelim()}{findDelim()}}
 {\footnotesize\ttfamily int find\+Delim (\begin{DoxyParamCaption}\item[{std\+::string}]{str,  }\item[{const char}]{delim }\end{DoxyParamCaption})}
 
-Find the location of the first unescaped delimiter in a given string The escape character is currently hard-\/coded to \textbackslash{}  Fix the hard-\/coded nature if the escape character
+
+
+Find the location of the first unescaped delimiter in a given string. 
 
 
 \begin{DoxyParams}[1]{Parameters}
-\mbox{\tt in}  & {\em std\+::string} & str, the string to search through \\
+\mbox{\texttt{ in}}  & {\em std\+::string} & str, the string to search through \\
 \hline
-\mbox{\tt in}  & {\em const} & char delim, the character to delimit on\\
+\mbox{\texttt{ in}}  & {\em const} & char delim, the character to delimit on\\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
 int delim\+Loc, the location of the first un-\/escaped delimiter 
 \end{DoxyReturn}
 \mbox{\Hypertarget{Config_8cpp_af2f6f4618d5583b4b5d3ab0ff5f2fc48}\label{Config_8cpp_af2f6f4618d5583b4b5d3ab0ff5f2fc48}} 
-\index{Config.\+cpp@{Config.\+cpp}!merge\+Config@{merge\+Config}}
-\index{merge\+Config@{merge\+Config}!Config.\+cpp@{Config.\+cpp}}
-\subsubsection{\texorpdfstring{merge\+Config()}{mergeConfig()}}
-{\footnotesize\ttfamily void merge\+Config (\begin{DoxyParamCaption}\item[{I\+Config\+Map \&}]{base\+Config,  }\item[{I\+Config\+Map \&}]{new\+Config,  }\item[{unsigned int}]{verbosity }\end{DoxyParamCaption})}
+\index{Config.cpp@{Config.cpp}!mergeConfig@{mergeConfig}}
+\index{mergeConfig@{mergeConfig}!Config.cpp@{Config.cpp}}
+\subsubsection{\texorpdfstring{mergeConfig()}{mergeConfig()}}
+{\footnotesize\ttfamily void merge\+Config (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classIConfigMap}{I\+Config\+Map}} \&}]{base\+Config,  }\item[{\mbox{\hyperlink{classIConfigMap}{I\+Config\+Map}} \&}]{new\+Config,  }\item[{unsigned int}]{verbosity = {\ttfamily DEFAULT\+\_\+VERBOSITY} }\end{DoxyParamCaption})}
 
-Merge a new config map into and on top of the base config Adds all the keys (and their values) unique to new\+Config to base\+Config Replaces all the values w/ keys they share with the new\+Config values
+
+
+Overlay a new config map on top of the base config. 
+
+Adds all the keys (and their values) unique to new\+Config to base\+Config Replaces all the values w/ keys they share with the new\+Config values
 
 
 \begin{DoxyParams}[1]{Parameters}
-\mbox{\tt in,out}  & {\em I\+Config\+Map\&} & base\+Config, the I\+Config\+Map-\/implementing object to apply the second Config object\textquotesingle{}s data onto \\
+\mbox{\texttt{ in,out}}  & {\em I\+Config\+Map\&} & base\+Config, the I\+Config\+Map-\/implementing object to apply the second \mbox{\hyperlink{classConfig}{Config}} object\textquotesingle{}s data onto \\
 \hline
-\mbox{\tt in}  & {\em I\+Config\+Map\&} & new\+Config, the I\+Config\+Map-\/implementing object whose values you are going to overlay onto base\+Config \\
+\mbox{\texttt{ in}}  & {\em I\+Config\+Map\&} & new\+Config, the I\+Config\+Map-\/implementing object whose values you are going to overlay onto base\+Config \\
 \hline
-\mbox{\tt in}  & {\em unsigned} & int verbosity, the verbosity to use when merging Config maps. Only matters if at 4 or higher \\
+\mbox{\texttt{ in}}  & {\em unsigned} & int verbosity, the verbosity to use when merging \mbox{\hyperlink{classConfig}{Config}} maps. Only matters if at 4 or higher \\
 \hline
 \end{DoxyParams}

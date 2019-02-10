@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['modestrtoint',['modeStrToInt',['../Options_8cpp.html#a820fae10c13f03aa1c95ea943f3c4f3d',1,'Options.cpp']]]
+  ['getopt_5foptions',['getopt_options',['../Starter_8cpp.html#a3db5ce5ad4afcd5cae2c1ffc268238f9',1,'Starter.cpp']]]
 ];

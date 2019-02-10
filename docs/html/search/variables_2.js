@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['validmodes',['validModes',['../Options_8cpp.html#a4b642eb8fdd9e773e70208044fc95d57',1,'Options.cpp']]],
-  ['validoptmaskvals',['validOptMaskVals',['../Options_8cpp.html#a915a575475bf8b805346ff7acc5cbcc4',1,'Options.cpp']]]
+  ['modes',['modes',['../Options_8cpp.html#a1ceade9f7f8e0d49c987decea75563b2',1,'Options.cpp']]],
+  ['modestrtoint',['modeStrToInt',['../Options_8cpp.html#a820fae10c13f03aa1c95ea943f3c4f3d',1,'Options.cpp']]]
 ];

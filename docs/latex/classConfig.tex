@@ -1,0 +1,237 @@
+\hypertarget{classConfig}{}\section{Config Class Reference}
+\label{classConfig}\index{Config@{Config}}
+
+
+This class is used to read, parse, and store data from configuration files or the command-\/line.  
+
+
+
+
+{\ttfamily \#include $<$Config.\+h$>$}
+
+Inheritance diagram for Config\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classConfig}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{classConfig_ad39b82d34c5ba05e16b6440a957517e7}{Config}} (std\+::string path=\char`\"{}/dev/null\char`\"{}, unsigned int verbosity=D\+E\+F\+A\+U\+L\+T\+\_\+\+V\+E\+R\+B\+O\+S\+I\+TY, char delim=D\+E\+L\+I\+M\+\_\+\+C\+H\+AR)
+\begin{DoxyCompactList}\small\item\em A constructor for a \mbox{\hyperlink{classConfig}{Config}} object, which represents a file holding various configuration options for the package manager. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{classConfig_a543dce59b66475c5108088ee4ce1cdfc}{$\sim$\+Config}} ()
+\begin{DoxyCompactList}\small\item\em A destructor used to guarentee the file streams are closed when we destroy the object. \end{DoxyCompactList}\item 
+std\+::string \mbox{\hyperlink{classConfig_a6c2d84c1fd4a4720fc7785bb9ab6bd65}{get\+Pathname}} ()
+\begin{DoxyCompactList}\small\item\em Returns the pathname of the \mbox{\hyperlink{classConfig}{Config}} object. \end{DoxyCompactList}\item 
+std\+::vector$<$ std\+::string $>$ \mbox{\hyperlink{classConfig_a1b377e4ec37a758532aa66dce2b2adb2}{get\+Config\+Strings}} ()
+\begin{DoxyCompactList}\small\item\em Returns a vector of strings, each one representing a single line from the configuration file this \mbox{\hyperlink{classConfig}{Config}} object represents. \end{DoxyCompactList}\item 
+std\+::map$<$ std\+::string, std\+::string $>$ $\ast$ \mbox{\hyperlink{classConfig_a129cacb3da610950c78f990a19d7e922}{get\+Config\+Map}} ()
+\begin{DoxyCompactList}\small\item\em Returns a map which represents keys and values for the current configuration. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classConfig_a9075a1a876f161230cf9b97268ac520a}{open\+Stream}} (std\+::ifstream \&file\+Stream)
+\begin{DoxyCompactList}\small\item\em Checks to see if a given filestream is closed, and if it is, open in. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classConfig_a96dde912b89cf8954cad1e472527cb2e}{open\+Stream}} ()
+\begin{DoxyCompactList}\small\item\em A shortcut to execute open\+Stream on the filestream associated with the \mbox{\hyperlink{classConfig}{Config}} object used to call the function. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classConfig_a8be2edef6f43770bf53f3ec517a74969}{close\+Stream}} (std\+::ifstream \&file\+Stream)
+\begin{DoxyCompactList}\small\item\em Checks to see if a given filestream is open, and if it is, close it. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classConfig_a1a6e966edae9532a37f48553e43274f6}{close\+Stream}} ()
+\begin{DoxyCompactList}\small\item\em A shortcut to execute close\+Stream on the filestream associated with the \mbox{\hyperlink{classConfig}{Config}} object used to call the function. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classConfig_a4afc899a42dc9360506cf2922c5f7cb1}{merge\+Config}} (\mbox{\hyperlink{classIConfigMap}{I\+Config\+Map}} \&base\+Config, \mbox{\hyperlink{classIConfigMap}{I\+Config\+Map}} \&new\+Config, unsigned int verbosity=D\+E\+F\+A\+U\+L\+T\+\_\+\+V\+E\+R\+B\+O\+S\+I\+TY)
+\begin{DoxyCompactList}\small\item\em Overlay a new config map on top of the base config. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This class is used to read, parse, and store data from configuration files or the command-\/line. 
+
+Valid keys are defined in config\+Keys in \mbox{\hyperlink{Options_8cpp}{Options.\+cpp}} 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{classConfig_ad39b82d34c5ba05e16b6440a957517e7}\label{classConfig_ad39b82d34c5ba05e16b6440a957517e7}} 
+\index{Config@{Config}!Config@{Config}}
+\index{Config@{Config}!Config@{Config}}
+\subsubsection{\texorpdfstring{Config()}{Config()}}
+{\footnotesize\ttfamily Config\+::\+Config (\begin{DoxyParamCaption}\item[{std\+::string}]{path = {\ttfamily \char`\"{}/dev/null\char`\"{}},  }\item[{unsigned int}]{verbosity = {\ttfamily DEFAULT\+\_\+VERBOSITY},  }\item[{char}]{delim = {\ttfamily DELIM\+\_\+CHAR} }\end{DoxyParamCaption})}
+
+
+
+A constructor for a \mbox{\hyperlink{classConfig}{Config}} object, which represents a file holding various configuration options for the package manager. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em std\+::string} & path, The path to the configuration file \\
+\hline
+\mbox{\texttt{ in}}  & {\em unsigned} & int verbosity, The verbosity level to use while reading the configuration file; between 0 and 4 \\
+\hline
+\mbox{\texttt{ in}}  & {\em char} & delim = \textquotesingle{}=\textquotesingle{}, The delimiter to use to seperate keys and values\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+\mbox{\hyperlink{classConfig}{Config}}, a config object 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classConfig_a543dce59b66475c5108088ee4ce1cdfc}\label{classConfig_a543dce59b66475c5108088ee4ce1cdfc}} 
+\index{Config@{Config}!````~Config@{$\sim$Config}}
+\index{````~Config@{$\sim$Config}!Config@{Config}}
+\subsubsection{\texorpdfstring{$\sim$Config()}{~Config()}}
+{\footnotesize\ttfamily Config\+::$\sim$\+Config (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A destructor used to guarentee the file streams are closed when we destroy the object. 
+
+\begin{DoxyReturn}{Returns}
+N\+U\+LL 
+\end{DoxyReturn}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classConfig_a8be2edef6f43770bf53f3ec517a74969}\label{classConfig_a8be2edef6f43770bf53f3ec517a74969}} 
+\index{Config@{Config}!closeStream@{closeStream}}
+\index{closeStream@{closeStream}!Config@{Config}}
+\subsubsection{\texorpdfstring{closeStream()}{closeStream()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily bool Config\+::close\+Stream (\begin{DoxyParamCaption}\item[{std\+::ifstream \&}]{file\+Stream }\end{DoxyParamCaption})}
+
+
+
+Checks to see if a given filestream is open, and if it is, close it. 
+
+\begin{DoxyWarning}{Warning}
+This function will likely be moved outside of the \mbox{\hyperlink{classConfig}{Config}} class itself in the future. Regardless, I would avoid using this function until that happens. For usage regarding the \mbox{\hyperlink{classConfig}{Config}} object\textquotesingle{}s stream, use the overload \mbox{\hyperlink{classConfig_a1a6e966edae9532a37f48553e43274f6}{Config\+::close\+Stream()}} with 0 arguments instead
+\end{DoxyWarning}
+@\+T\+O\+DO Move this generic overload outside of the \mbox{\hyperlink{classConfig}{Config}} class. I have no clue why I put it in there to begin with.
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em std\+::ifstream\&} & file\+Stream, the filestream to close\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+bool is\+Closed, the opposite of file\+Stream.\+is\+\_\+open() 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classConfig_a1a6e966edae9532a37f48553e43274f6}\label{classConfig_a1a6e966edae9532a37f48553e43274f6}} 
+\index{Config@{Config}!closeStream@{closeStream}}
+\index{closeStream@{closeStream}!Config@{Config}}
+\subsubsection{\texorpdfstring{closeStream()}{closeStream()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily bool Config\+::close\+Stream (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A shortcut to execute close\+Stream on the filestream associated with the \mbox{\hyperlink{classConfig}{Config}} object used to call the function. 
+
+This function exists because I cannot use function calls as default arguments. This simply calls the overloaded function with the \mbox{\hyperlink{classConfig}{Config}}\textquotesingle{}s filestream
+
+\begin{DoxyReturn}{Returns}
+bool is\+Closed, the opposite of Config.\+conf\+File\+Stream.\+is\+\_\+open() 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classConfig_a129cacb3da610950c78f990a19d7e922}\label{classConfig_a129cacb3da610950c78f990a19d7e922}} 
+\index{Config@{Config}!getConfigMap@{getConfigMap}}
+\index{getConfigMap@{getConfigMap}!Config@{Config}}
+\subsubsection{\texorpdfstring{getConfigMap()}{getConfigMap()}}
+{\footnotesize\ttfamily std\+::map$<$ std\+::string, std\+::string $>$ $\ast$ Config\+::get\+Config\+Map (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Returns a map which represents keys and values for the current configuration. 
+
+\begin{DoxyReturn}{Returns}
+std\+::map$<$std\+::string, std\+::string$>$ parsed\+Config\+Vals 
+\end{DoxyReturn}
+
+
+Implements \mbox{\hyperlink{classIConfigMap}{I\+Config\+Map}}.
+
+\mbox{\Hypertarget{classConfig_a1b377e4ec37a758532aa66dce2b2adb2}\label{classConfig_a1b377e4ec37a758532aa66dce2b2adb2}} 
+\index{Config@{Config}!getConfigStrings@{getConfigStrings}}
+\index{getConfigStrings@{getConfigStrings}!Config@{Config}}
+\subsubsection{\texorpdfstring{getConfigStrings()}{getConfigStrings()}}
+{\footnotesize\ttfamily std\+::vector$<$ std\+::string $>$ Config\+::get\+Config\+Strings (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Returns a vector of strings, each one representing a single line from the configuration file this \mbox{\hyperlink{classConfig}{Config}} object represents. 
+
+Because this is rarely (never, at the time of writing this) going to be used, this function merely reads the file each time it is called Because of this, it is not guarenteed to be equal to the config\+Vals map, which is the parsed version of the configuration file This design choice was made because the little-\/to-\/zero usage doesn\textquotesingle{}t justify the potential memory cost of holding the entire file in memory until the object is destroyed
+
+\begin{DoxyRefDesc}{Deprecated}
+\item[\mbox{\hyperlink{deprecated__deprecated000001}{Deprecated}}]For the reasons above\end{DoxyRefDesc}
+
+
+\begin{DoxyReturn}{Returns}
+std\+::vector$<$std\+::string$>$ config\+Strings 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classConfig_a6c2d84c1fd4a4720fc7785bb9ab6bd65}\label{classConfig_a6c2d84c1fd4a4720fc7785bb9ab6bd65}} 
+\index{Config@{Config}!getPathname@{getPathname}}
+\index{getPathname@{getPathname}!Config@{Config}}
+\subsubsection{\texorpdfstring{getPathname()}{getPathname()}}
+{\footnotesize\ttfamily std\+::string Config\+::get\+Pathname (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Returns the pathname of the \mbox{\hyperlink{classConfig}{Config}} object. 
+
+\begin{DoxyReturn}{Returns}
+std\+::string pathname 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classConfig_a9075a1a876f161230cf9b97268ac520a}\label{classConfig_a9075a1a876f161230cf9b97268ac520a}} 
+\index{Config@{Config}!openStream@{openStream}}
+\index{openStream@{openStream}!Config@{Config}}
+\subsubsection{\texorpdfstring{openStream()}{openStream()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily bool Config\+::open\+Stream (\begin{DoxyParamCaption}\item[{std\+::ifstream \&}]{file\+Stream }\end{DoxyParamCaption})}
+
+
+
+Checks to see if a given filestream is closed, and if it is, open in. 
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in}}  & {\em std\+::ifstream\&} & file\+Stream, the filestream to open\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+bool is\+Open, file\+Stream.\+is\+\_\+open() afterwards 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classConfig_a96dde912b89cf8954cad1e472527cb2e}\label{classConfig_a96dde912b89cf8954cad1e472527cb2e}} 
+\index{Config@{Config}!openStream@{openStream}}
+\index{openStream@{openStream}!Config@{Config}}
+\subsubsection{\texorpdfstring{openStream()}{openStream()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily bool Config\+::open\+Stream (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+A shortcut to execute open\+Stream on the filestream associated with the \mbox{\hyperlink{classConfig}{Config}} object used to call the function. 
+
+\begin{DoxyReturn}{Returns}
+bool is\+Open, Config.\+conf\+File\+Stream.\+is\+\_\+open() 
+\end{DoxyReturn}
+
+
+\subsection{Friends And Related Function Documentation}
+\mbox{\Hypertarget{classConfig_a4afc899a42dc9360506cf2922c5f7cb1}\label{classConfig_a4afc899a42dc9360506cf2922c5f7cb1}} 
+\index{Config@{Config}!mergeConfig@{mergeConfig}}
+\index{mergeConfig@{mergeConfig}!Config@{Config}}
+\subsubsection{\texorpdfstring{mergeConfig}{mergeConfig}}
+{\footnotesize\ttfamily void merge\+Config (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{classIConfigMap}{I\+Config\+Map}} \&}]{base\+Config,  }\item[{\mbox{\hyperlink{classIConfigMap}{I\+Config\+Map}} \&}]{new\+Config,  }\item[{unsigned int}]{verbosity = {\ttfamily DEFAULT\+\_\+VERBOSITY} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [friend]}}
+
+
+
+Overlay a new config map on top of the base config. 
+
+Adds all the keys (and their values) unique to new\+Config to base\+Config Replaces all the values w/ keys they share with the new\+Config values
+
+
+\begin{DoxyParams}[1]{Parameters}
+\mbox{\texttt{ in,out}}  & {\em I\+Config\+Map\&} & base\+Config, the I\+Config\+Map-\/implementing object to apply the second \mbox{\hyperlink{classConfig}{Config}} object\textquotesingle{}s data onto \\
+\hline
+\mbox{\texttt{ in}}  & {\em I\+Config\+Map\&} & new\+Config, the I\+Config\+Map-\/implementing object whose values you are going to overlay onto base\+Config \\
+\hline
+\mbox{\texttt{ in}}  & {\em unsigned} & int verbosity, the verbosity to use when merging \mbox{\hyperlink{classConfig}{Config}} maps. Only matters if at 4 or higher \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{Config_8h}{Config.\+h}}\item 
+\mbox{\hyperlink{Config_8cpp}{Config.\+cpp}}\end{DoxyCompactItemize}

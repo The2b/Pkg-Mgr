@@ -1,0 +1,33 @@
+\hypertarget{classIConfigMap}{}\section{I\+Config\+Map Class Reference}
+\label{classIConfigMap}\index{IConfigMap@{IConfigMap}}
+
+
+This is the minimum we need exposed for other classes usage.  
+
+
+
+
+{\ttfamily \#include $<$Config.\+h$>$}
+
+Inheritance diagram for I\+Config\+Map\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{classIConfigMap}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classIConfigMap_ad7deec6531121ad6b2a566aa18679f9a}\label{classIConfigMap_ad7deec6531121ad6b2a566aa18679f9a}} 
+virtual std\+::map$<$ std\+::string, std\+::string $>$ $\ast$ {\bfseries get\+Config\+Map} ()=0
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+This is the minimum we need exposed for other classes usage. 
+
+In pparticular, \mbox{\hyperlink{classOptions}{Options}} apply\+Config function uses this interface This interface is used to make unit testing said function far easier, as I can simply return a constant map. 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{Config_8h}{Config.\+h}}\end{DoxyCompactItemize}
