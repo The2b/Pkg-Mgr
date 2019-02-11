@@ -1,19 +1,22 @@
-# Purpose
+# pkg-mgr
 This package manager is a project I started in an effort to assist my building of an entirely open-source Linux system from scratch. Because I could not find any package managers to suit my needs and desires, I instead built my own. The focus of this package manager is to be small, low-profile, and fast.
 
-# Prerequisites & Installation
-Information on prerequisites are in INSTALL
+## News
+Any news will be added to the head of [NEWS.md](NEWS.md)
 
-# Running tests
+## Prerequisites & Installation
+Information on prerequisites are in [INSTALL.md](INSTALL.md)
+
+## Running tests
 Currently, tests are run in two forms: unit tests and integration tests
 
-## Unit tests
+### Unit tests
 In order to build and execute the unit-tests, run
     make unit-tests
 
 from the root directory of the project. Doing so will build and execute the unit tests, and send a short summary of the results to stdout.
 
-## Integration tests
+### Integration tests
 The integration tests serve two purposes. First, they verify that your compiler created a valid product. Second, they verify that the components of the project are able to work together in order to do what we need them to.
 
 In order to run the integration tests, run
@@ -24,10 +27,13 @@ Second, it will run our testing scripts in order to validate the executable.
 
 In a similar style to the unit tests, this will run a few short Python scripts in order to verify the product created by your compiler. Afterwards, it will give you a short summary describing the results of the tests.
 
-# Licensing
+## Contributing
+Information on how to contribute is in [CONTRIB.md](CONTRIB.md)
+
+## Licensing
 Currently, this product does not ship with any additional software. Because I am not redistributing any software, I am not currently required to follow GPL per the libstdc++ linking exception. As for libarchive, because I am not currently distributing its source code or a compiled binary for it, its license does not have scope over this project.
 
-That being said, I have decided to release this under the GPLv3. For more information regarding the GPLv3, look at the file LICENSE
+That being said, I have decided to release this under the GPLv3. For more information regarding the GPLv3, look at the file [LICENSE.md](LICENSE.md)
 
 # Contact me
 If you want to let me know about a bug you found, the best way is to post an Issue on GitHub: https://github.com/The2b/Pkg-Mgr/issues

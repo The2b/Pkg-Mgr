@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.15"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>pkg-mgr: Main Page</title>
+<title>pkg-mgr: pkg-mgr</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -62,11 +62,35 @@ $(function() {
 </iframe>
 </div>
 
-<div class="header">
+<div class="PageDoc"><div class="header">
   <div class="headertitle">
-<div class="title">pkg-mgr Documentation</div>  </div>
+<div class="title">pkg-mgr </div>  </div>
 </div><!--header-->
 <div class="contents">
+<div class="textblock"><p>This package manager is a project I started in an effort to assist my building of an entirely open-source Linux system from scratch. Because I could not find any package managers to suit my needs and desires, I instead built my own. The focus of this package manager is to be small, low-profile, and fast.</p>
+<h2>News</h2>
+<p>Any news will be added to the head of <a class="el" href="md_NEWS.html">NEWS.md</a></p>
+<h2>Prerequisites &amp; Installation</h2>
+<p>Information on prerequisites are in <a class="el" href="md_INSTALL.html">INSTALL.md</a></p>
+<h2>Running tests</h2>
+<p>Currently, tests are run in two forms: unit tests and integration tests</p>
+<h3>Unit tests</h3>
+<p>In order to build and execute the unit-tests, run make unit-tests</p>
+<p>from the root directory of the project. Doing so will build and execute the unit tests, and send a short summary of the results to stdout.</p>
+<h3>Integration tests</h3>
+<p>The integration tests serve two purposes. First, they verify that your compiler created a valid product. Second, they verify that the components of the project are able to work together in order to do what we need them to.</p>
+<p>In order to run the integration tests, run make check</p>
+<p>This will do a couple things. First, it will build the executable if it is not up-to-date already. Second, it will run our testing scripts in order to validate the executable.</p>
+<p>In a similar style to the unit tests, this will run a few short Python scripts in order to verify the product created by your compiler. Afterwards, it will give you a short summary describing the results of the tests.</p>
+<h2>Contributing</h2>
+<p>Information on how to contribute is in <a class="el" href="md_CONTRIB.html">CONTRIB.md</a></p>
+<h2>Licensing</h2>
+<p>Currently, this product does not ship with any additional software. Because I am not redistributing any software, I am not currently required to follow GPL per the libstdc++ linking exception. As for libarchive, because I am not currently distributing its source code or a compiled binary for it, its license does not have scope over this project.</p>
+<p>That being said, I have decided to release this under the GPLv3. For more information regarding the GPLv3, look at the file <a class="el" href="md_LICENSE.html">LICENSE.md</a></p>
+<h1>Contact me</h1>
+<p>If you want to let me know about a bug you found, the best way is to post an Issue on GitHub: <a href="https://github.com/The2b/Pkg-Mgr/issues">https://github.com/The2b/Pkg-Mgr/issues</a> Ideally, you can post a description of the bug's effects, steps to reproduce it, as well as output from the program when running at verbosity level 4.</p>
+<p>If you have any questions, you can send an e-mail to me at <a href="#" onclick="location.href='mai'+'lto:'+'tho'+'ma'+'s.l'+'en'+'z96'+'@g'+'mai'+'l.'+'com'; return false;">thoma<span style="display: none;">.nosp@m.</span>s.le<span style="display: none;">.nosp@m.</span>nz96@<span style="display: none;">.nosp@m.</span>gmai<span style="display: none;">.nosp@m.</span>l.com</a> I recommend you put something in the subject along the lines of "Pkg-Mgr Question" so that I recognize it is not coming from a spam bot or anything of the like. I have a public PGP key out there for that e-mail, with the comment "General Communications", if you feel the need to reach me in a secure manner. </p>
+</div></div><!-- PageDoc -->
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

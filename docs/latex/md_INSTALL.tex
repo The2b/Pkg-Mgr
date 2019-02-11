@@ -1,0 +1,24 @@
+\subsection*{Prerequisites}
+
+The following prerequisites are required to build Pkg-\/\+Mgr\+:
+\begin{DoxyItemize}
+\item A valid C++17 filesystem library
+\item A valid C++ compiler which supports the C++17 standard
+\item A valid libc compliant with the C++17 standard
+\item A valid, usable \char`\"{}make\char`\"{} installation
+\item libarchive
+\end{DoxyItemize}
+
+Eventually, most items (particularly the C++17 and stdc++fs support) will have alternatives more widely available on various machines. For now, these are all strict requirements.
+
+\subsection*{Building \& Installation}
+
+Once all of the prereqs are met, you can run ./configure
+
+If all of the prereqs are installed, there should be no error messages. If so, you can run the following command to build Pkg-\/\+Mgr\+: make
+
+And to install it, make install
+
+\subsubsection*{Build Environment Variables}
+
+The default options for your build can be changed at compile-\/time. The following options can be set as exported environment variables to change the default options for your build\+: D\+E\+F\+A\+U\+L\+T\+\_\+\+V\+E\+R\+B\+O\+S\+I\+TY = The default verbosity the program should use D\+E\+F\+A\+U\+L\+T\+\_\+\+S\+M\+A\+R\+T\+\_\+\+OP = Currently unimplemented; Once implemented, this will check for file-\/collision when uninstalling packages, and verify that no files within the package already exist within the filesystem before continuting. D\+E\+F\+A\+U\+L\+T\+\_\+\+T\+A\+R\+\_\+\+L\+I\+B\+R\+A\+R\+Y\+\_\+\+P\+A\+TH = The default path at which the program should look for packages D\+E\+F\+A\+U\+L\+T\+\_\+\+I\+N\+S\+T\+A\+L\+L\+E\+D\+\_\+\+P\+K\+G\+\_\+\+P\+A\+TH = The default path at which the program should store and look for index files, such that it knows what is and is not installed. D\+E\+F\+A\+U\+L\+T\+\_\+\+G\+L\+O\+B\+A\+L\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+A\+TH = The default path at which the program should look for the global configuration file. This is an absolute path. D\+E\+F\+A\+U\+L\+T\+\_\+\+U\+S\+E\+R\+\_\+\+C\+O\+N\+F\+I\+G\+\_\+\+P\+A\+TH = The default path at which the program should look for user-\/specific configuration files. This is relative to the user\textquotesingle{}s home directory. D\+E\+F\+A\+U\+L\+T\+\_\+\+S\+Y\+S\+T\+E\+M\+\_\+\+R\+O\+OT = The root folder which the program should install packages to or uninstall packages from. D\+E\+F\+A\+U\+L\+T\+\_\+\+E\+X\+C\+L\+U\+D\+E\+D\+\_\+\+F\+I\+L\+ES = Currently unimplemented; Once implemented, this will determine filepaths which should be ignored while installing or uninstalling packages. 

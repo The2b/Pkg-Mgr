@@ -1,3 +1,6 @@
+# Prerequisites, Building, and Installation
+
+## Prerequisites
 The following prerequisites are required to build Pkg-Mgr:
     * A valid C++17 filesystem library
     * A valid C++ compiler which supports the C++17 standard
@@ -7,6 +10,7 @@ The following prerequisites are required to build Pkg-Mgr:
 
 Eventually, most items (particularly the C++17 and stdc++fs support) will have alternatives more widely available on various machines. For now, these are all strict requirements.
 
+## Building & Installation
 Once all of the prereqs are met, you can run
     ./configure
 
@@ -16,7 +20,7 @@ If all of the prereqs are installed, there should be no error messages. If so, y
 And to install it,
     make install
 
-
+### Build Environment Variables
 The default options for your build can be changed at compile-time. The following options can be set as exported environment variables to change the default options for your build:
     DEFAULT_VERBOSITY = The default verbosity the program should use
     DEFAULT_SMART_OP = Currently unimplemented; Once implemented, this will check for file-collision when uninstalling packages, and verify that no files within the package already exist within the filesystem before continuting.
