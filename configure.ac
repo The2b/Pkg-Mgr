@@ -23,7 +23,6 @@ AC_CONFIG_SRCDIR([src])
 # Build Makefile.in
 # Use automake warnings, and make them fatal
 # Don't enforce GNU standards at the moment
-# @TODO
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects nostdinc])
 
 # Set MKDIR_P
