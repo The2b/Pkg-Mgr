@@ -10,13 +10,6 @@
 AC_PREREQ([2.69])
 AC_INIT([Pkg-mgr],[1.0.0],[thomas.lenz96@gmail.com])
 
-# Init Doxygen
-DX_HTML_FEATURE([ON])
-DX_MAN_FEATURE([ON])
-DX_PDF_FEATURE([OFF])
-DX_PS_FEATURE([OFF])
-DX_INIT_DOXYGEN([pkg-mgr], [doxy-config], [./docs])
-
 AS_IF([test x"$CXXFLAGS" == x],[HAVE_CXXFLAGS=0],[HAVE_CXXFLAGS=1])
 
 AC_LANG([C++])
