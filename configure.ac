@@ -114,16 +114,15 @@ AC_MSG_RESULT([$WITH_STDCXXFS])
 # Get our package's default configuration options
 AC_ARG_VAR([DEFAULT_VERBOSITY],[Sets the default verbosity the program should use. Unless specifically set by the command-line, this is also used as the verbosity while processing  configuration files.])
 AC_ARG_VAR([DEFAULT_SMART_OP],[Tells the program whether or not to use "Smart Mode" by default. This mode helps prevent accidental file overwrites or deletions. THIS IS CURRENTLY NOT IMPLEMENTED!!!!])
-AC_ARG_VAR([DEFAULT_TAR_LIBRARY_PATH],[Sets the default path which the program will look for packages. This is relative to the system root, and is *not* relative to the prefix given to configure.])
-AC_ARG_VAR([DEFAULT_INSTALLED_PKG_PATH],[Sets the default path to use to store information on which packages are installed on the system. This is relative to the system root, and is *not* relative to the prefix given to configure.])
+AC_ARG_VAR([DEFAULT_TAR_LIBRARY_PATH],[Sets the default path which the program will look for packages. Defaults to "${localstatedir}/lib/pkg-mgr/pkgs".])
+AC_ARG_VAR([DEFAULT_INSTALLED_PKG_PATH],[Sets the default path to use to store information on which packages are installed on the system. Defaults to "${localstatedir}/lib/pkg-mgr/installed".])
 
 # @TODO Consider using configure's sysconf instead for this. Should be an easy refactor.
-AC_ARG_VAR([DEFAULT_GLOBAL_CONFIG_PATH],[Sets the default path to pull up when looking for the global configuration file. This must be absolute, and is not relative to the prefix given to configure.])
+AC_ARG_VAR([DEFAULT_GLOBAL_CONFIG_PATH],[Sets the default path to pull up when looking for the global configuration file. Defaults to "${sysconfdir}".])
 
-AC_ARG_VAR([DEFAULT_USER_CONFIG_PATH],[Sets the default path to pull up when looking for user configuration files. This is relative to the user's home directory. It is *not* affected by configure's prefix. nor is it affected by the system root options.])
+AC_ARG_VAR([DEFAULT_USER_CONFIG_PATH],[Sets the default path to pull up when looking for user configuration files. If this begins with '/', it is absolute. Otherwise, it is relative to the user's "HOME" environment variable at runtime. It is *not* affected by configure's prefix. Defaults to ".config".])
 
-# @TODO Consider using configure's prefix instead for this. Should be an easy refactor.
-AC_ARG_VAR([DEFAULT_SYSTEM_ROOT],[Sets the default system root, which is attached to each relevant path, such as the tar library path or the global configuration path.])
+AC_ARG_VAR([DEFAULT_SYSTEM_ROOT],[Sets the default system root to operate on. Defaults to "${prefix}"])
 
 AC_ARG_VAR([DEFAULT_EXCLUDED_FILES],[Sets the default files which we should ignore when installing or uninstalling packages. This has no effect on the files we use to mark installed packages. THIS IS NOT CURRENTLY IMPLEMENTED, AND LIKELY NEVER WILL BE IN CONFIGURE!! This is only here as a placeholder in case I do decide to implement it.])
 
@@ -147,7 +146,7 @@ AC_MSG_RESULT([$defaultSmartOp])
 AC_MSG_CHECKING([for the default tar library path])
 AS_IF([test "x$DEFAULT_TAR_LIBRARY_PATH" != x],
       [defaultTarLibPath="$DEFAULT_TAR_LIBRARY_PATH"],
-      [defaultTarLibPath="\${prefix}/var/lib/pkg-mgr/pkgs/"]
+      [defaultTarLibPath="\${localstatedir}/lib/pkg-mgr/pkgs/"]
      )
 AC_SUBST([defaultTarLibPath],["$defaultTarLibPath"])
 AC_MSG_RESULT([$defaultTarLibPath])
@@ -155,7 +154,7 @@ AC_MSG_RESULT([$defaultTarLibPath])
 AC_MSG_CHECKING([for the installed package index path])
 AS_IF([test "x$DEFAULT_INSTALLED_PKG_PATH" != x],
       [defaultInstalledPkgPath="$DEFAULT_INSTALLED_PKG_PATH"],
-      [defaultInstalledPkgPath="\${prefix}/var/lib/pkg-mgr/installed/"]
+      [defaultInstalledPkgPath="\${localstatedir}/lib/pkg-mgr/installed/"]
      )
 AC_SUBST([defaultInstalledPkgPath],["$defaultInstalledPkgPath"])
 AC_MSG_RESULT([$defaultInstalledPkgPath])
@@ -163,7 +162,7 @@ AC_MSG_RESULT([$defaultInstalledPkgPath])
 AC_MSG_CHECKING([for the default global configuration file path])
 AS_IF([test "x$DEFAULT_GLOBAL_CONFIG_PATH" != x],
       [defaultGlobalConfigPath="$DEFAULT_GLOBAL_CONFIG_PATH"],
-      [defaultGlobalConfigPath="\${prefix}/${sysconfdir}/"]
+      [defaultGlobalConfigPath="\${sysconfdir}/"]
      )
 AC_SUBST([defaultGlobalConfigPath],["$defaultGlobalConfigPath"])
 AC_MSG_RESULT([$defaultGlobalConfigPath])
