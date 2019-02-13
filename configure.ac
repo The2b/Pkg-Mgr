@@ -8,7 +8,7 @@
 # BEGIN PREAMBLE{{{
 # Require autoconf 2.69
 AC_PREREQ([2.69])
-AC_INIT([Pkg-mgr],[1.0.0],[thomas.lenz96@gmail.com])
+AC_INIT([Pkg-mgr],[1,0.2],[thomas.lenz96@gmail.com])
 
 AS_IF([test x"$CXXFLAGS" == x],[HAVE_CXXFLAGS=0],[HAVE_CXXFLAGS=1])
 
