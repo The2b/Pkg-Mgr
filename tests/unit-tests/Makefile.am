@@ -8,13 +8,15 @@
 check_PROGRAMS = testConfig/tstConfig testPkg/tstPkg testOptions/tstOptions
 TESTS = $(check_PROGRAMS)
 
+include $(top_srcdir)/defaultDefinitions.am
+
 LOG_COMPILER = $(top_srcdir)/tests/unit-tests/binary-wrapper.sh 
 
-AM_CPPFLAGS = -g -O0 -I$(top_srcdir)/src/include -I$(top_srcdir)/src/include/tests
+AM_CPPFLAGS = -g -O0 -I$(top_srcdir)/src/include -I$(top_srcdir)/src/include/tests $(DEFAULT_DEFINITIONS)
 AM_CXXFLAGS = 
 
 testConfig_tstConfig_SOURCES = testConfig/tstConfig.cpp $(top_srcdir)/src/backend/Config.cpp
-testConfig_tstConfig_CPPFLAGS = $(AM_CPPFLAGS) -lcppunit
+testConfig_tstConfig_CPPFLAGS = $(AM_CPPFLAGS) -lcppunit 
 testConfig_tstConfig_CXXFLAGS =
 testConfig_tstConfig_LDADD = -lcppunit
 

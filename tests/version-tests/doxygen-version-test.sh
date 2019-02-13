@@ -1,3 +1,4 @@
+#!/bin/bash
 # @author Thomas Lenz <thomas.lenz96@gmail.com> AS The2b
 # @date 12 February 2019
 # @project Package Manager

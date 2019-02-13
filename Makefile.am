@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src
-man3_MANS = docs/man/man3/*
+#man3_MANS = docs/man/man3/*
 
 .PHONY: all check unit-tests version-tests all-tests help html-docs man-docs latex-docs docs clean
 

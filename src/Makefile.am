@@ -8,12 +8,14 @@ tarlibdir = $(DESTDIR)/$(defaultTarLibPath)
 installedpkgdir = $(DESTDIR)/$(defaultInstalledPkgPath)
 globalconfdir = $(DESTDIR)/$(defaultGlobalConfigPath)
 
+include $(top_srcdir)/defaultDefinitions.am
+
 # This is to counteract the fact that I disabled the global defeault CXXFLAGS so I could compile tests without optimization
 AM_CXXFLAGS = -O2 -g
 
 pkg_mgr_SOURCES = backend/Config.cpp backend/Options.cpp backend/Pkg.cpp cli/Starter.cpp
 
-pkg_mgr_CPPFLAGS = -I$(top_srcdir)/src/include -DDEFAULT_VERBOSITY='$(defaultVerbosity)' -DDEFAULT_SMART_OP='$(defaultSmartOp)' -DDEFAULT_TAR_LIBRARY_PATH='"$(defaultTarLibPath)"' -DDEFAULT_INSTALLED_PKG_PATH='"$(defaultInstalledPkgPath)"' -DDEFAULT_GLOBAL_CONFIG_PATH='"$(defaultGlobalConfigPath)/pkg-mgr.conf"' -DDEFAULT_USER_CONFIG_PATH='"$(defaultUserConfigPath)/pkg-mgr.conf"' -DDEFAULT_SYSTEM_ROOT='"$(defaultSystemRoot)"' -DDEFAULT_EXCLUDED_FILES='$(defaultExcludedFiles)'
+pkg_mgr_CPPFLAGS = -I$(top_srcdir)/src/include $(DEFAULT_DEFINITIONS)
 
 pkg_mgr_LDADD =
 

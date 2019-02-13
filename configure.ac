@@ -35,7 +35,7 @@ AM_PATH_PYTHON([3.0])
 AC_CONFIG_HEADERS([src/include/config.h:config.in])
 
 # Build a Makefile with standard targets
-AC_CONFIG_FILES([Makefile:Makefile.in src/Makefile:src/Makefile.in tests/unit-tests/Makefile:tests/unit-tests/Makefile.in tests/executable-tests/Makefile:tests/executable-tests/Makefile.in])
+AC_CONFIG_FILES([Makefile:Makefile.in src/Makefile:src/Makefile.in tests/unit-tests/Makefile:tests/unit-tests/Makefile.in tests/executable-tests/Makefile:tests/executable-tests/Makefile.in tests/version-tests/Makefile:tests/version-tests/Makefile.in])
 # END PREAMBLE}}}
 
 # BEGIN CHECK HEADERS{{{

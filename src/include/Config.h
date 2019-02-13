@@ -13,6 +13,7 @@
 #include <map>      // maps
 #include <vector>   // vectors
 #include <fstream>  // Reading configs
+#include "config.h"
 
 // The keys used for parsable config file options 
 #define KEY_VERBOSE "verbosity"
