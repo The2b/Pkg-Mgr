@@ -13,6 +13,7 @@
 #include <map>      // maps
 #include <vector>   // vectors
 #include <fstream>  // Reading configs
+#include "config.h"
 
 // The keys used for parsable config file options 
 #define KEY_VERBOSE "verbosity"
@@ -30,15 +31,28 @@
 // Our delimiter
 #define DELIM_CHAR '='
 
-// This is the minimum we need exposed for other classes usage, and therefore unit testing other functions. Specifically, Options applyConfig
+/**
+ * @class IConfigMap
+ * 
+ * @brief This is the minimum we need exposed for other classes usage
+ *
+ * @details In pparticular, Options applyConfig function uses this interface
+ * This interface is used to make unit testing said function far easier, as I can simply return a constant map.
+ */
 class IConfigMap {
     public:
         virtual std::map<std::string, std::string>* getConfigMap() = 0;
 };
 
-// NOTE: Valid keys are defined in configKeys in Options.cpp
+/**
+ * @class Config
+ * 
+ * @brief This class is used to read, parse, and store data from configuration files or the command-line
+ * 
+ * @details Valid keys are defined in configKeys in Options.cpp
+ */
 class Config : public IConfigMap {
-    friend void mergeConfig(IConfigMap& baseConfig, IConfigMap& newConfig, unsigned int verbosity = 2);
+    friend void mergeConfig(IConfigMap& baseConfig, IConfigMap& newConfig, unsigned int verbosity = DEFAULT_VERBOSITY);
     
     private:
         bool isOpen;
@@ -49,12 +63,12 @@ class Config : public IConfigMap {
         // @TODO I may not need this. I'll need to see if this is even useful/worth the memory after being parsed
         std::vector<std::string> readVals;
 
-        std::vector<std::string> readConfig(std::ifstream& fileStream, unsigned int verbosity = 2);
-        std::map<std::string, std::string> parseConfig(std::vector<std::string> rawStrs, unsigned int verbosity = 2, char delim = DELIM_CHAR);
+        std::vector<std::string> readConfig(std::ifstream& fileStream, unsigned int verbosity = DEFAULT_VERBOSITY);
+        std::map<std::string, std::string> parseConfig(std::vector<std::string> rawStrs, unsigned int verbosity = DEFAULT_VERBOSITY, char delim = DELIM_CHAR);
 
     public:
         // This one has a verbosity argument such that we can use verbosity before actually reading it from the config file and applying it to the options
-        Config(std::string path = "/dev/null", unsigned int verbosity = 2, char delim = DELIM_CHAR);
+        Config(std::string path = "/dev/null", unsigned int verbosity = DEFAULT_VERBOSITY, char delim = DELIM_CHAR);
         ~Config();
         std::string getPathname();
         std::vector<std::string> getConfigStrings();

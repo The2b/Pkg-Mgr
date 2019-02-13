@@ -11,10 +11,12 @@
 #include "Options.h"
 
 /**
- * This map is used to translate configuration file options to values which we can use in switch statements, for efficiency
+ * @brief This map is used to translate configuration file options to values which we can use in switch statements, for efficiency
  * This means that in order for a new configuration option to be recognized, its string representation, as well as a unique integer identifier must be added to this map.
  * In addition, a valid option must also be added to the function applyConfig
  * These values are set by pre-processor directives in Options.h
+ *
+ * @TODO Look into allowing this to be somehow logically made up on the spot, rather than keeping it in the heap, if we want to optimize size over efficiency
  */
 std::map<std::string, unsigned int> configKeys =
 {
@@ -28,7 +30,15 @@ std::map<std::string, unsigned int> configKeys =
     //{ KEY_EXCLUDED_FILES, MASK_EXCLUDED_FILES } // Not yet implemented
 };
 
-// @TODO See if we really need this
+/**
+ * @brief A map used to take mode integers and create a mode_s struct
+ *
+ * @details The mode_s struct offers proper < & > & == operators, as well as storing the required string.
+ * This allows for faster lookups if we are printing out the mode of operation, at the cost of size
+ *
+ * @TODO Replace mode_s with string, and then have a function that takes in a mode int and outputs a mode_s, using the new map to get its string and building the mode_s on the fly. This will cost a few clock cycles, but will reduce a good bit of redundant data on the heap
+ * To the same point, make this a pair, so we can go either way (from int to string, or vice versa)
+ */
 std::map<int, mode_s> modes = {
     { INSTALL, mode_s{ INSTALL, "install" } },
     { UNINSTALL, mode_s{ UNINSTALL, "uninstall" } },
@@ -42,6 +52,7 @@ std::map<int, mode_s> modes = {
 // Modes of operation
 // The values are replaced per the pre-processor directives in Options.h
 // @TODO See if we really need this
+// It should probably be conflated with the above, using pairs instead of maps
 /**
  * A dictionary used to translate mode strings into integers we can switch on
  * In order to add a new mode of operation, its string representation(s) and integer identifier must be added to this map
@@ -64,25 +75,26 @@ std::map<std::string, unsigned int> modeStrToInt = {
 };
 
 /**
- * This is used as a validation set, such that we can check if a given mode is valid
- * In order to add a new mode of operation, its identifier must be added to this set
+ * @brief This is used as a validation set, such that we can check if a given mode is valid
+ * 
+ * @details In order to add a new mode of operation, its identifier must be added to this set
  */
 std::set<unsigned int> validModes = {
     0,1,2,3,4,5,6,7,8,9,99
 };
 
 /**
- * This is a set used to validate that the optMask values we send to addToOptMask are valid
- * Specifically, this set is used to make sure that any values given to addToOptMask are powers of two
+ * @brief This is a set used to validate that the optMask values we send to addToOptMask are valid
+ * @details Specifically, this set is used to make sure that any values given to addToOptMask are powers of two
  */
 std::set<unsigned int> validOptMaskVals = {
     0,1,2,4,8,16,32,64,128,256
 };
 
 /**
- * The constructor for the Options class. Most of these have default values set by the pre-processor at compile time via environment variables in config.h. If those can't be found (which should never be the case), there are hard-coded fail-safe values in the header Options.h
+ * @brief The constructor for the Options class. Most of these have default values set by the pre-processor at compile time via environment variables in config.h. If those can't be found (which should never be the case), there are hard-coded fail-safe values in the header Options.h
  *
- * Just calls the set* functions
+ * @details Just calls the set* functions
  *
  * @param unsigned int mode
  * @param unsigned int verbosity
@@ -111,7 +123,7 @@ Options::Options(unsigned int mode, unsigned int verbosity, bool smartOperation,
 }/*}}}*/
 
 /**
- * Getter for the mode_s object associated with the Options object
+ * @brief Getter for the mode_s object associated with the Options object
  *
  * @returns mode_struct mode
  */
@@ -120,7 +132,7 @@ mode_s Options::getMode() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the mode index integer associated with the mode_s object associated with the Options object
+ * @brief Getter for the mode index integer associated with the mode_s object associated with the Options object
  * 
  * @returns unsigned int modeIndex
  */
@@ -129,7 +141,7 @@ unsigned int Options::getModeIndex() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the mode string associated with the mode_s object associated with the Options object
+ * @brief Getter for the mode string associated with the mode_s object associated with the Options object
  * 
  * @returns std::string modeStr
  */
@@ -138,7 +150,7 @@ std::string Options::getModeStr() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the option mask integer associated with the Options object
+ * @brief Getter for the option mask integer associated with the Options object
  *
  * @returns unsigned int optionMask
  */
@@ -147,7 +159,7 @@ unsigned int Options::getOptMask() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the verbosity integer associated with the Options object
+ * @brief Getter for the verbosity integer associated with the Options object
  * 
  * @returns unsigned int verbosityLevel
  */
@@ -156,7 +168,7 @@ unsigned int Options::getVerbosity() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the smart op boolean associated with the Options object
+ * @brief Getter for the smart op boolean associated with the Options object
  *
  * @returns bool smartOperation
  */
@@ -165,7 +177,7 @@ bool Options::getSmartOperation() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the global configuration file path associated with the Options object
+ * @brief Getter for the global configuration file path associated with the Options object
  *
  * @returns std::string globalConfigPath
  */
@@ -174,7 +186,7 @@ std::string Options::getGlobalConfigPath() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the user configuration file path associated with the Options object
+ * @brief Getter for the user configuration file path associated with the Options object
  *
  * @returns std::string userConfigPath
  */
@@ -183,7 +195,7 @@ std::string Options::getUserConfigPath() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the system root path associated with the Options object
+ * @brief Getter for the system root path associated with the Options object
  *
  * @returns std::string systemRoot
  */
@@ -192,7 +204,7 @@ std::string Options::getSystemRoot() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the tar package library path associated with the Options object
+ * @brief Getter for the tar package library path associated with the Options object
  *
  * @returns std::string tarLibraryPath
  */
@@ -201,7 +213,7 @@ std::string Options::getTarLibraryPath() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the installed packages path associated with the Options object
+ * @brief Getter for the installed packages path associated with the Options object
  *
  * @returns std::string installedPkgIndexDir
  */
@@ -210,7 +222,7 @@ std::string Options::getInstalledPkgsPath() {/*{{{*/
 }/*}}}*/
 
 /**
- * Getter for the excluded file paths associated with the Options object
+ * @brief Getter for the excluded file paths associated with the Options object
  *
  * @returns std::set<std::string> excludedFiles
  */
@@ -219,8 +231,9 @@ std::set<std::string> Options::getExcludedFiles() {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets a mode based on the mode_s passed to it
- * This is mostly going to be used in the background from the other two setMode functions, but can be used if you want to create your own mode_s struct variable
+ * @brief Sets a mode based on the mode_s passed to it
+ *
+ * @details This is mostly going to be used in the background from the other two setMode functions, but can be used if you want to create your own mode_s struct variable
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -234,8 +247,9 @@ bool Options::setMode(mode_s m, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets a mode based on the mode_s passed to it
- * This is mostly going to be used in the background from the other two setMode functions, but can be used if you want to create your own mode_s struct variable
+ * @brief Sets a mode based on the mode_s passed to it
+ * 
+ * @details This is mostly going to be used in the background from the other two setMode functions, but can be used if you want to create your own mode_s struct variable
  *
  * @param mode_struct mode
  * @param unsigned int verbosity
@@ -258,7 +272,7 @@ bool Options::setMode(mode_s m, unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the mode based on the integer passed to it, which is used as an index for the "modes" map
+ * @brief Sets the mode based on the integer passed to it, which is used as an index for the "modes" map
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -272,7 +286,7 @@ bool Options::setMode(unsigned int m, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the mode based on the integer passed to it, which is used as an index for the "modes" map
+ * @brief Sets the mode based on the integer passed to it, which is used as an index for the "modes" map
  *
  * @param unsigned int modeIndex
  * @param unsigned int verbosity
@@ -296,8 +310,9 @@ bool Options::setMode(unsigned int m, unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets a mode based on the string passed to it. 
- * The string is then used as a key for the "modeStrToInt" map
+ * @brief Sets a mode based on the string passed to it. 
+ * 
+ * @details The string is then used as a key for the "modeStrToInt" map
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -311,8 +326,9 @@ bool Options::setMode(std::string m, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets a mode based on the string passed to it. 
- * The string is then used as a key for the "modeStrToInt" map
+ * @brief Sets a mode based on the string passed to it. 
+ * 
+ * @details The string is then used as a key for the "modeStrToInt" map
  *
  * @param std::string modeString
  * @param unsigned int verbosity
@@ -330,8 +346,9 @@ bool Options::setMode(std::string m, unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the option mask.
- * The option mask is used to track which options were set by the user via the CLI, such that they are not overridden by the Configs we read later
+ * @brief Sets the option mask.
+ * 
+ * @details The option mask is used to track which options were set by the user via the CLI, such that they are not overridden by the Configs we read later
  * Consequentially, this should only be used after the options are read from the CLI
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
@@ -346,8 +363,9 @@ bool Options::setOptMask(unsigned int o, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the option mask.
- * The option mask is used to track which options were set by the user via the CLI, such that they are not overridden by the Configs we read later
+ * @brief Sets the option mask.
+ * 
+ * @details The option mask is used to track which options were set by the user via the CLI, such that they are not overridden by the Configs we read later
  * Consequentially, this should only be used after the options are read from the CLI
  *
  * @param unsigned int optionMask
@@ -371,8 +389,9 @@ bool Options::setOptMask(unsigned int o, unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the verbosity to use for future operations.
- * Note that this alone does not set verbosity, but stores it
+ * @brief Sets the verbosity to use for future operations.
+ * 
+ * @warning This alone does not set verbosity, but stores it
  * The value must still be passed to the operations correctly
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
@@ -387,8 +406,9 @@ bool Options::setVerbosity(unsigned int v, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the verbosity to use for future operations.
- * Note that this alone does not set verbosity, but stores it
+ * @brief Sets the verbosity to use for future operations.
+ * 
+ * @warning This alone does not set verbosity, but stores it
  * The value must still be passed to the operations correctly
  *
  * @param unsigned int verbosityLevel
@@ -413,11 +433,12 @@ bool Options::setVerbosity(unsigned int v, unsigned int verbosityLevel) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the verbosity to use for future operations.
- * Note that this alone does not set verbosity, but stores it
+ * @brief Sets the verbosity to use for future operations.
+ * 
+ * @warning This alone does not set verbosity, but stores it
  * The value must still be passed to the operations correctly
  *
- * This overload will fail if the second index is not '\0', since values are meant to be from 0 to 4
+ * @warning This overload will fail if the second index is not '\0', since values are meant to be from 0 to 4
  * This is also meant to be used such that the command-line option or a line from a file stream can be passed directly to it, rather than parsing it out manually
  * If setVerbosity needs to be called from somewhere from within the program for some reason, you should probably use the unsigned int overload instead
  *
@@ -433,11 +454,12 @@ bool Options::setVerbosity(const char* v, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the verbosity to use for future operations.
- * Note that this alone does not set verbosity, but stores it
+ * @brief Sets the verbosity to use for future operations.
+ * 
+ * @warning This alone does not set verbosity, but stores it
  * The value must still be passed to the operations correctly
  *
- * This overload will fail if the second index is not '\0', since values are meant to be from 0 to 4
+ * @warning This overload will fail if the second index is not '\0', since values are meant to be from 0 to 4
  * This is also meant to be used such that the command-line option or a line from a file stream can be passed directly to it, rather than parsing it out manually
  * If setVerbosity needs to be called from somewhere from within the program for some reason, you should probably use the unsigned int overload instead
  *
@@ -463,9 +485,11 @@ bool Options::setVerbosity(const char* v, unsigned int verbosityLevel) {/*{{{*/
 
 // @TODO Write an overload for const char* and/or string instead of bool for the first parameter
 /**
- * Sets whether or not we are going to use smart operation.
- * Currently, the smart operation itself is not implemented; However, we have this here for the future
- * This function always returns true, since there cannot be an invalid value without error'ing out when the function is called
+ * @brief Sets whether or not we are going to use smart operation.
+ * 
+ * @warning Currently, the smart operation itself is not implemented; However, we have this here for the future
+ * 
+ * @details This function always returns true, since there cannot be an invalid value without error'ing out when the function is called
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -480,9 +504,11 @@ bool Options::setSmartOperation(bool so, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets whether or not we are going to use smart operation.
- * Currently, the smart operation itself is not implemented; However, we have this here for the future
- * This function always returns true, since there cannot be an invalid value without error'ing out when the function is called
+ * @brief Sets whether or not we are going to use smart operation.
+ * 
+ * @warning Currently, the smart operation itself is not implemented; However, we have this here for the future
+ * 
+ * @details This function always returns true, since there cannot be an invalid value without error'ing out when the function is called
  *
  * @param bool smartOperation
  * @param unsigned int verbosity
@@ -495,8 +521,11 @@ bool Options::setSmartOperation(bool so, unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the global configuration file path to read.
- * This option is only really helpful in the command line. Any other usage (AKA when used in a configuration file) will print out a warning that it does nothing, and the file path supplied is being ignored
+ * @brief Sets the global configuration file path to read.
+ * 
+ * @details This option is only really helpful in the command line. Any other usage (AKA when used in a configuration file) will print out a warning that it does nothing, and the file path supplied is being ignored, if it is not silenced
+ * A trailing directory separator is not required If you put one there, any warnings or errors will have two consecutive directory separators in them
+ * The choice not to make logic to remove the second consecutive directory separator was mostly made for simplicity. If someone wants to put it in, go right ahead.
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -510,8 +539,11 @@ bool Options::setGlobalConfigPath(std::string gcp, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the global configuration file path to read.
- * This option is only really helpful in the command line. Any other usage (AKA when used in a configuration file) will print out a warning that it does nothing, and the file path supplied is being ignored
+ * @brief Sets the global configuration file path to read.
+ *
+ * @details This option is only really helpful in the command line. Any other usage (AKA when used in a configuration file) will print out a warning that it does nothing, and the file path supplied is being ignored, if verbosity is not 0
+ * A trailing directory separator is not required If you put one there, any warnings or errors will have two consecutive directory separators in them
+ * The choice not to make logic to remove the second consecutive directory separator was mostly made for simplicity. If someone wants to put it in, go right ahead.
  *
  * @param std::string globalConfigPath
  * @param unsigned int verbosity
@@ -539,13 +571,14 @@ bool Options::setGlobalConfigPath(std::string gcp, unsigned int verbosity) {/*{{
 }/*}}}*/
 
 /**
- * Sets the user file path to read.
+ * @brief Sets the user file path to read.
  * 
- * If the path is relative, it will be relative to the user's home directory. There is currently no way to change this.
- *
+ * @details If the path is relative, it will be relative to the user's home directory. There is currently no way to change this.
  * Alternatively, if it is absolute, it will be taken literally
+ * A trailing directory separator is not required If you put one there, any warnings or errors will have two consecutive directory separators in them
+ * The choice not to make logic to remove the second consecutive directory separator was mostly made for simplicity. If someone wants to put it in, go right ahead.
  *
- * Note that there will be no warning if we have a user configuration file path in the user configuration file. This is because the configuration file itself is abstracted away, such that there is no difference between a user configuration file and a global configuration file, as far as the objects are concerned, and thus no way of knowing which file the option came from. The difference is made in which is applied first (global), which will be overridden by the second (user).
+ * @warning There will be no warning if we have a user configuration file path in the user configuration file. This is because the configuration file itself is abstracted away, such that there is no difference between a user configuration file and a global configuration file, as far as the objects are concerned, and thus no way of knowing which file the option came from. The difference is made in which is applied first (global), which will be overridden by the second (user).
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -559,13 +592,13 @@ bool Options::setUserConfigPath(std::string ucp, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the user file path to read.
+ * @brief Sets the user file path to read.
  * 
- * If the path is relative, it will be relative to the user's home directory. There is currently no way to change this.
+ * @details If the path is relative, it will be relative to the user's home directory. There is currently no way to change this.
  *
  * Alternatively, if it is absolute, it will be taken literally
  *
- * Note that there will be no warning if we have a user configuration file path in the user configuration file. This is because the configuration file itself is abstracted away, such that there is no difference between a user configuration file and a global configuration file, as far as the objects are concerned, and thus no way of knowing which file the option came from. The difference is made in which is applied first (global), which will be overridden by the second (user).
+ * @warning There will be no warning if we have a user configuration file path in the user configuration file. This is because the configuration file itself is abstracted away, such that there is no difference between a user configuration file and a global configuration file, as far as the objects are concerned, and thus no way of knowing which file the option came from. The difference is made in which is applied first (global), which will be overridden by the second (user).
  *
  * @param std::string userConfigPath
  * @param unsigned int verbosity
@@ -599,9 +632,11 @@ bool Options::setUserConfigPath(std::string ucp, unsigned int verbosity) {/*{{{*
 }/*}}}*/
 
 /**
- * Sets the system root to operate on.
+ * @brief Sets the system root to operate on.
  *
- * Packages will be installed to or removed using this directory as a prefix.
+ * @details Packages will be installed to or removed using this directory as a prefix.
+ * A trailing directory separator is not required If you put one there, any warnings or errors will have two consecutive directory separators in them
+ * The choice not to make logic to remove the second consecutive directory separator was mostly made for simplicity. If someone wants to put it in, go right ahead.
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -615,9 +650,9 @@ bool Options::setSystemRoot(std::string sr, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the system root to operate on.
+ * @brief Sets the system root to operate on.
  *
- * Packages will be installed to or removed using this directory as a prefix.
+ * @details Packages will be installed to or removed using this directory as a prefix.
  *
  * @param std::string systemRoot
  * @param unsigned int verbosity
@@ -646,9 +681,12 @@ bool Options::setSystemRoot(std::string sr, unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the folder path in which we should look for tar packages.
- * This has some logic to it. First of all, if the given path is not absolute, it will be concatanated to the user's current working directory
+ * @brief Sets the folder path in which we should look for tar packages.
+ * 
+ * @details This has some logic to it. First of all, if the given path is not absolute, it will be concatanated to the user's current working directory
  * Second, it will verify the folder exists, and refuse to set the variable if it does not, and return false. The calling function should handle this, since there are cases where this is not a problem
+ * A trailing directory separator is not required If you put one there, any warnings or errors will have two consecutive directory separators in them
+ * The choice not to make logic to remove the second consecutive directory separator was mostly made for simplicity. If someone wants to put it in, go right ahead.
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -662,9 +700,12 @@ bool Options::setTarLibraryPath(std::string tlp, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the folder path in which we should look for tar packages.
- * This has some logic to it. First of all, if the given path is not absolute, it will be concatanated to the user's current working directory
+ * @brief Sets the folder path in which we should look for tar packages.
+ * 
+ * @details This has some logic to it. First of all, if the given path is not absolute, it will be concatanated to the user's current working directory
  * Second, it will verify the folder exists, and refuse to set the variable if it does not, and return false. The calling function should handle this, since there are cases where this is not a problem
+ * A trailing directory separator is not required If you put one there, any warnings or errors will have two consecutive directory separators in them
+ * The choice not to make logic to remove the second consecutive directory separator was mostly made for simplicity. If someone wants to put it in, go right ahead.
  *
  * @param std::string tarLibraryPath
  * @param unsigned int verbosity
@@ -693,9 +734,11 @@ bool Options::setTarLibraryPath(std::string tlp, unsigned int verbosity) {/*{{{*
 }/*}}}*/
 
 /**
- * Sets the folder path where index files of which packages are and are not installed are stored.
+ * @brief Sets the folder path where index files of which packages are and are not installed are stored.
  *
- * This folder is where the files created by and removed by the follow/unfollow operations (called either on their own or by install/uninstall) are stored.
+ * @details This folder is where the files created by and removed by the follow/unfollow operations (called either on their own or by install/uninstall) are stored.
+ * A trailing directory separator is not required If you put one there, any warnings or errors will have two consecutive directory separators in them
+ * The choice not to make logic to remove the second consecutive directory separator was mostly made for simplicity. If someone wants to put it in, go right ahead.
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -709,9 +752,11 @@ bool Options::setInstalledPkgsPath(std::string ipp, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the folder path where index files of which packages are and are not installed are stored.
+ * @brief Sets the folder path where index files of which packages are and are not installed are stored.
  *
- * This folder is where the files created by and removed by the follow/unfollow operations (called either on their own or by install/uninstall) are stored.
+ * @details This folder is where the files created by and removed by the follow/unfollow operations (called either on their own or by install/uninstall) are stored.
+ * A trailing directory separator is not required If you put one there, any warnings or errors will have two consecutive directory separators in them
+ * The choice not to make logic to remove the second consecutive directory separator was mostly made for simplicity. If someone wants to put it in, go right ahead.
  *
  * @param std::string setInstalledPkgIndexDirectory
  * @param unsigned int verbosity
@@ -740,11 +785,11 @@ bool Options::setInstalledPkgsPath(std::string ipp, unsigned int verbosity) {/*{
 }/*}}}*/
 
 /**
- * Sets the files which should be ignored when installing or uninstalling packages.
+ * @brief Sets the files which should be ignored when installing or uninstalling packages.
  *
- * The actual implementation of excluded files is not complete. As such, this option currently does nothing.
+ * @warning The actual implementation of excluded files is not complete. As such, this option currently does nothing.
  *
- * Always returns true
+ * @details Always returns true
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -758,11 +803,11 @@ bool Options::setExcludedFiles(std::set<std::string> ef, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Sets the files which should be ignored when installing or uninstalling packages.
+ * @brief Sets the files which should be ignored when installing or uninstalling packages.
  *
- * The actual implementation of excluded files is not complete. As such, this option currently does nothing.
+ * @warning The actual implementation of excluded files is not complete. As such, this option currently does nothing.
  *
- * Always returns true
+ * @details Always returns true
  *
  * @param std::set<std::string> excludedFileSet
  * @param unsigned int verbosity
@@ -775,9 +820,11 @@ bool Options::setExcludedFiles(std::set<std::string> ef, unsigned int verbosity)
 }/*}}}*/
 
 /**
- * OR's a given value with the current option mask.
+ * @brief OR's a given value with the current option mask.
  *
- * This is the recommended usage for option masks. The input should always be a power of 2, and is checked against the set "validOptMasks". Calling this function with 0 as the first argument does nothing.
+ * @details This is the recommended usage for option masks. The input should always be a power of 2, and is checked against the set "validOptMasks". Calling this function with 0 as the first argument does nothing.
+ *
+ * @TODO Allow a size optimization that computes the valid opt masks at runtime, rather than storing them as constants in a set. Keep the current iteration as a performance optimization.
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -791,9 +838,11 @@ bool Options::addToOptMask(unsigned int opt, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * OR's a given value with the current option mask.
+ * @brief OR's a given value with the current option mask.
  *
- * This is the recommended usage for option masks. The input should always be a power of 2, and is checked against the set "validOptMasks". Calling this function with 0 as the first argument does nothing.
+ * @details This is the recommended usage for option masks. The input should always be a power of 2, and is checked against the set "validOptMasks". Calling this function with 0 as the first argument does nothing.
+ *
+ * @TODO Allow a size optimization that computes the valid opt masks at runtime, rather than storing them as constants in a set. Keep the current iteration as a performance optimization.
  *
  * @param unsigned int optMaskToAdd
  * @param unsigned int verbosity
@@ -817,9 +866,11 @@ bool Options::addToOptMask(unsigned int opt, unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * This adds the file path given to the excluded files set. Currently, however, the usage of that set is not implemented. As such, this option currently does not do anything.
+ * @brief This adds the file path given to the excluded files set. 
+ * 
+ * @warning Currently, the usage of that set is not implemented. As such, this option currently does not do anything.
  *
- * Always returns true
+ * @details Always returns true
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -833,9 +884,11 @@ bool Options::addToExcludedFiles(std::string path, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * This adds the file path given to the excluded files set. Currently, however, the usage of that set is not implemented. As such, this option currently does not do anything.
+ * @brief This adds the file path given to the excluded files set. 
+ * 
+ * @warning Currently, the usage of that set is not implemented. As such, this option currently does not do anything.
  *
- * Always returns true
+ * @details Always returns true
  *
  * @param std::string pathToAdd
  * @param unsigned int verbosity
@@ -848,7 +901,7 @@ bool Options::addToExcludedFiles(std::string path, unsigned int verbosity) {/*{{
 }/*}}}*/
 
 /**
- * Turns a mode string into an integer, per modeStrToInt
+ * @brief Turns a mode string into an integer, per modeStrToInt
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -862,9 +915,12 @@ unsigned int Options::translateMode(std::string m, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Turns a mode string into an integer, per modeStrToInt
- * Returns NOP on error. At this time, this should never occur. However, in the future, this will return NOP if an invalid mode is given.
- * Currently exits if an invalid mode is given. This should be changed, and return NOP instead.
+ * @brief Turns a mode string into an integer, per modeStrToInt
+ * 
+ * @details Returns NOP on error. At this time, this should never occur. However, in the future, this will return NOP if an invalid mode is given.
+ * @warning Currently exits if an invalid mode is given. This should be changed, and return NOP instead.
+ * 
+ * @TODO Fix the above
  *
  * @param std::string modeString
  * @param unsigned int verbosity
@@ -890,9 +946,11 @@ unsigned int Options::translateMode(std::string m, unsigned int verbosity) {/*{{
 }/*}}}*/
 
 /**
- * Applies a Config object (or any object implementing IConfigMap, in Config.h) to the Options object which calls this function.
+ * @brief Applies a Config object to the Options object which calls this function.
  *
- * Any matching keys are overridden, and thus user configurations should be read last, such that the user's own options take priority over the global configuration file. Values set by the user via CLI are processed first, however. To avoid overwriting the user's manual options, this function checks against the optMask for whether or not the option was set via CLI. If so, the configuration file is ignored.
+ * @details The brief summary is a lie. It actually can use any object implementing IConfigMap, in Config.h
+ 
+ * @warning Any matching keys are overridden, and thus user configurations should be read last, such that the user's own options take priority over the global configuration file. Values set by the user via CLI are processed first, however. To avoid overwriting the user's manual options, this function checks against the optMask for whether or not the option was set via CLI. If so, the configuration file is ignored.
  *
  * @deprecated Replaced with integer verbosity to be consistent with the rest of the program
  *
@@ -906,9 +964,11 @@ bool Options::applyConfig(IConfigMap& conf, bool silent) {/*{{{*/
 }/*}}}*/
 
 /**
- * Applies a Config object (or any object implementing IConfigMap, in Config.h) to the Options object which calls this function.
+ * @brief Applies a Config object to the Options object which calls this function.
  *
- * Any matching keys are overridden, and thus user configurations should be read last, such that the user's own options take priority over the global configuration file. Values set by the user via CLI are processed first, however. To avoid overwriting the user's manual options, this function checks against the optMask for whether or not the option was set via CLI. If so, the configuration file is ignored.
+ * @details The brief summary is a lie. It actually can use any object implementing IConfigMap, in Config.h
+ *
+ * @warning Any matching keys are overridden, and thus user configurations should be read last, such that the user's own options take priority over the global configuration file. Values set by the user via CLI are processed first, however. To avoid overwriting the user's manual options, this function checks against the optMask for whether or not the option was set via CLI. If so, the configuration file is ignored.
  *
  * @param IConfigMap& configMapObject
  * @param unsigned int verbosity

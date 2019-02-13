@@ -10,11 +10,16 @@
 #include "Pkg.h"
 
 /**
- * This sets up a Pkg object based on the path given.
+ * @brief This sets up a Pkg object based on the path given.
  *
- * The tar library path is not taken into account by this function, in order to maintain loose coupling of parts. The extention is also required.
+ * @details The tar library path is not taken into account by this function, in order to maintain loose coupling of parts. The extention is also required.
  * Currently, only *.tar packages are acceptable, but compressed packages will likely be added later.
  * This sets the package name variable, verifies the existance of the package, and nothing else. Other variables are set only when they are used. Specifically, the package contents are only checked when uninstalling a package. However, this is likely to change when smart operation is implemented.
+ *
+ * @param std::string Package path
+ * @param unsigned int verbosity
+ *
+ * @return Pkg Package object
  */
 Pkg::Pkg(std::string path, unsigned int verbosity) {/*{{{*/
     pathname = path;
@@ -31,10 +36,12 @@ Pkg::Pkg(std::string path, unsigned int verbosity) {/*{{{*/
     }
 }/*}}}*/
 
-// Builds our pkgContents set
 /**
- * This builds a set of paths which the package contains.
+ * @brief This function builds a list of files within the package
+ *
+ * @details This builds a set of paths which the package contains.
  * This is not relative to the system root. Currently, this is only run by uninstallPkg, and is not stored in memory after the return value is garbage collected. However, this may change in the future.
+ *
  */
 std::set<std::string> Pkg::buildPkgContents(unsigned int verbosity) {/*{{{*/
     std::set<std::string> pkgSet;
@@ -57,29 +64,47 @@ std::set<std::string> Pkg::buildPkgContents(unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * A getter for the file path of the package.
+ * @brief A getter for the file path of the package.
  * 
- * This will always include the tar library path given when constructing the object, since that path is required when doing so.
+ * @details This will always include the tar library path given when constructing the object, since that path is required when doing so.
  */
 std::string Pkg::getPathname() {/*{{{*/
     return pathname;
 }/*}}}*/
 
 /**
- * A getter for the name of the package.
+ * @brief A getter for the name of the package.
  */
 std::string Pkg::getPkgName() {/*{{{*/
     return pkgName;
 }/*}}}*/
 
-/*
-// Much like with the pkgContents builder, we need to iterate through each header to extract the files
-// @TODO Profile
-// @TODO Add in the capability for pre- and post- install scripts
-// @TODO Add in checks for whether or not each file already exists in the filesystem (this can be external, and then passed in the exclusions set)
-// @TODO Implement quick and smart modes. At the moment, it only operates in quick mode
-// @TODO Add a quarentine mode, such that all old files are moved to a temporary directory and then deleted from there after the fact. That will let us catch certain signals, and undo our actions
-*/
+/**
+ * @brief Used to install the package to the filesystem
+ *
+ * @details The program will iterate through each file in the package. After appending that path to the system root, it will extract the file to the new location.
+ * This function does not run followPkg as part of its operation. If you want to do that, call followPkg yourself afterwards.
+ * If you want to run pre- and post- install scripts, install a package, and follow the package, use installPkgWithScripts
+ *
+ * @TODO Add in checks for whether or not each file already exists in the filesystem (this can be external, and then passed in the exclusions set)
+ * @TODO Implement quick and smart modes. At the moment, it only operates in quick mode
+ * @TODO Add a quarentine mode, such that all old files are moved to a temporary directory and then deleted from there after the fact. That will let us catch certain signals, and undo our actions
+ * @TODO Refactor error messages
+ * 
+ * @param std::string Package path
+ * @param std::string System root
+ * @param std::string Package index file path
+ * @param unsigned int Verbosity level
+ * @param std::set<std::string> Excluded files
+ * @param bool Quick mode (Currently unimplemented)
+ *
+ * @return int Status
+ *  -110: The system root is invalid
+ *  -111: The package index file path is invalid
+ *  -112: The tar package does not exist in the package path
+ *  -113: Libarchive ran into an issue opening the tar package
+ *  Anything else: Libarchive error code during operation (Always below 0)
+ */
 int Pkg::installPkg(std::string tarPath, std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
     // Before doing anything, we should verify all paths we are given, sans exclusions, actually exist
     if(!std::filesystem::is_directory(std::filesystem::status(root))) {
@@ -111,6 +136,7 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
     archive* a;
     archive_entry* ae;
     if(!openArchiveWithTarSupport(a, tarPath.c_str(), verbosity)) {
+        // @TODO Add an error message here
         return -113;
     }
 
@@ -143,17 +169,38 @@ int Pkg::installPkg(std::string tarPath, std::string root, std::string installed
 
 }/*}}}*/
 
-// This function is here to work around the fact that I can't use member vars/functions as default parameters
 /**
- * Installs a package using the values set when constructing the object.
- * Calls the superset overload with the objects derived from the constructor.
+ * @brief Installs a package using the values set when constructing the object.
+ * @details Calls the superset overload with the objects derived from the constructor.
+ *
+ * @param std::string System root
+ * @param std::string Package index file path
+ * @param unsigned int Verbosity level
+ * @param std::set<std::string> Excluded files
+ * @param bool Quick mode (Currently unimplemented)
+ *
+ * @return int Status
+ *  -110: The system root is invalid
+ *  -111: The package index file path is invalid
+ *  -112: The tar package does not exist in the package path
+ *  -113: Libarchive ran into an issue opening the tar package
+ *  Anything else: Libarchive error code during operation (Always below 0)
  */
 int Pkg::installPkg(std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
     return installPkg(pathname, root, installedPkgsPath, verbosity, exclusions, quick);
 }/*}}}*/
 
 /**
- * Calls installPkg, followPkg, and the appropriate scripts at the approrpiate times
+ * @brief Calls installPkg, followPkg, and the appropriate scripts at the approrpiate times
+ * 
+ * @param std::string System root
+ * @param std::string Package index file path
+ * @param unsigned int Verbosity level
+ * @param std::set<std::string> Excluded files
+ * @param bool Quick mode (Currently unimplemented)
+ *
+ * @TODO List these statuses
+ * @return int Status
  */
 int Pkg::installPkgWithScripts(std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
     // Store our original working directory
@@ -235,17 +282,24 @@ int Pkg::installPkgWithScripts(std::string root, std::string installedPkgsPath, 
 }/*}}}*/
 
 // Here, we can just look at the package contents and remove the files
-// @TODO Profile
-// @TODO Add in the capability for pre- and post- uninstall scripts
 // @TODO Add in checks for any shared files between packages (this can be external, and then passed in the exclusions set)
 // @TODO Implement quick and smart modes. At the moment, it only operates in quick mode
 // @TODO Decide on whether I want more sophisticated decision making, even for quick mode. Specifically, if we should delete pipes, block devices, sockets, character devices, etc
 // @TODO Add a quarentine mode, such that all files are moved to a temporary directory and then deleted from there. That will let us catch certain signals, and undo our actions
-// @TODO Seperate the installation and the scripts, have another function call them both
 /**
- * Removes the files which are contained in a package.
+ * @brief Removes the files which are contained in a package.
  *
- * Currently, this does not check for other packages which have file collisions with the package being uninstalled. In addition, instead of moving the files to a temporary directory to be removed, it simply removes the files outright, as if calling "rm" on the file from a shell. This means that if we cancel an uninstallation part-way through, the damage cannot be undone. This is likely going to be changed in the future.
+ * @details Currently, this does not check for other packages which have file collisions with the package being uninstalled. In addition, instead of moving the files to a temporary directory to be removed, it simply removes the files outright, as if calling "rm" on the file from a shell. This means that if we cancel an uninstallation part-way through, the damage cannot be undone. This is likely going to be changed in the future.
+ *
+ * @param std::set<std::string> Package contents (Generated from buildPkgContents)
+ * @param std::string System root
+ * @param std::string Package index file path
+ * @param unsigned int Verbosity level
+ * @param std::set<std::string> Excluded files
+ * @param bool Quick mode (Currently unimplemented)
+ *
+ * @TODO List these statuses
+ * @return int Status
  */
 int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
     // Before doing anything, we should verify all paths we are given, sans exclusions, actually exist
@@ -348,15 +402,34 @@ int Pkg::uninstallPkg(std::set<std::string> pkgContents, std::string root, std::
 }/*}}}*/
 
 /**
- * Uninstalls a package using the values set when constructing the object.
- * Calls the superset overload with the objects derived from the constructor.
+ * @brief Uninstalls a package using the values set when constructing the object.
+ * 
+ * @details Calls the superset overload with the objects derived from the constructor.
+ *
+ * @param std::string System root
+ * @param std::string Package index file path
+ * @param unsigned int Verbosity level
+ * @param std::set<std::string> Excluded files
+ * @param bool Quick mode (Currently unimplemented)
+ *
+ * @TODO List these statuses
+ * @return int Status
  */
 int Pkg::uninstallPkg(std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
     return uninstallPkg(buildPkgContents(verbosity), root, installedPkgsPath, verbosity, exclusions, quick);
 }/*}}}*/
 
 /**
- * Calls uninstallPkg, unfollowPkg, and the appropriate scripts at the appropriate times
+ * @brief Calls uninstallPkg, unfollowPkg, and the appropriate scripts at the appropriate times
+ *
+ * @param std::string System root
+ * @param std::string Package index file path
+ * @param unsigned int Verbosity level
+ * @param std::set<std::string> Excluded files
+ * @param bool Quick mode (Currently unimplemented)
+ *
+ * @TODO List these statuses
+ * @return int Status
  */
 int Pkg::uninstallPkgWithScripts(std::string root, std::string installedPkgsPath, unsigned int verbosity, std::set<std::string> exclusions, bool quick) {/*{{{*/
     // Store our old working directory
@@ -432,10 +505,13 @@ int Pkg::uninstallPkgWithScripts(std::string root, std::string installedPkgsPath
 }/*}}}*/
 
 /**
- * Creates a file in the installed package index directory for the given Pkg object.
+ * @brief Creates a file in the installed package index directory for the given Pkg object.
  *
- * This function verifies whether or not the package is already being followed (file matching the package name in the index directory), and if it is, does not touch it.
- * This is such that the user can still check when the package was followed/installed, even if they call this function after doing so.
+ * @details This function verifies whether or not the package is already being followed (file matching the package name in the index directory), and if it is, does not touch it.
+ * This is such that the user can still check *when* the package was followed/installed, even if they call this function after doing so.
+ *
+ * @param std::string Package index file path
+ * @param unsigned int Verbosity level
  */
 bool Pkg::followPkg(std::string installedPkgsPath, unsigned int verbosity) {/*{{{*/
     std::string path = installedPkgsPath + "/" + pkgName;
@@ -509,9 +585,9 @@ bool Pkg::unfollowPkg(std::string installedPkgsPath, unsigned int verbosity) {/*
 }/*}}}*/
 
 /**
- * Lists all of the packages which we can find in a given directory
+ * @brief Lists all of the packages which we can find in a given directory
  *
- * Per libc standards, none of the functions here can throw exceptions. Therefore, this function will always return true.
+ * @details Per libc standards, none of the functions here can throw exceptions. Therefore, this function will always return true.
  *
  * @param std::string tarLibrary
  * @param unsigned int verbosity
@@ -532,9 +608,9 @@ bool listAllPkgs(std::string libraryPath, unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Lists all of the installed packages which we can find in our installed package index directory
+ * @brief Lists all of the installed packages which we can find in our installed package index directory
  *
- * Per libc standards, none of the functions here can throw exceptions. Therefore, this function will always return true.
+ * @details Per libc standards, none of the functions here can throw exceptions. Therefore, this function will always return true.
  *
  * @param std::string installedPkgsDirectoryt
  * @param unsigned int verbosity
@@ -553,7 +629,7 @@ bool listInstalledPkgs(std::string installedPkgsPath, unsigned int verbosity) {/
 }/*}}}*/
 
 /**
- * Executes the pre-install shell script of the package, if it exists
+ * @brief Executes the pre-install shell script of the package, if it exists
  * @TODO Allow the user to use any given temporary directory
  * 
  * @param [in] unsigned int verbosity
@@ -568,7 +644,7 @@ int Pkg::execPreInstallScript(unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Executes the post-install shell script of the package, if it exists
+ * @brief Executes the post-install shell script of the package, if it exists
  * @TODO Allow the user to use any given temporary directory
  * 
  * @param [in] unsigned int verbosity
@@ -583,7 +659,7 @@ int Pkg::execPostInstallScript(unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Executes the pre-uninstall shell script of the package, if it exists
+ * @brief Executes the pre-uninstall shell script of the package, if it exists
  * @TODO Allow the user to use any given temporary directory
  * 
  * @param [in] unsigned int verbosity
@@ -598,7 +674,7 @@ int Pkg::execPreUninstallScript(unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Executes the post-uninstall shell script of the package, if it exists
+ * @brief Executes the post-uninstall shell script of the package, if it exists
  * @TODO Allow the user to use any given temporary directory
  *
  * @param [in] unsigned int verbosity
@@ -613,7 +689,7 @@ int Pkg::execPostUninstallScript(unsigned int verbosity) {/*{{{*/
 }/*}}}*/
 
 /**
- * Opens an archive for reading and sets up tar support
+ * @brief Opens an archive for reading and sets up tar support
  *
  * @param [out] archive* archive
  * @param [in] std::string archivePath
@@ -639,8 +715,8 @@ bool openArchiveWithTarSupport(struct archive*& a, std::string archivePath, unsi
 }/*}}}*/
 
 /**
- * Extracts and executes a script from a tarball
- * The script must be in the root of the tarball
+ * @brief Extracts and executes a script from a tarball
+ * @details The script must be in the root of the tarball
  *
  * @param [in] std::string scriptName
  * @param [in] std::stirng extractionDir
@@ -714,7 +790,7 @@ int extractAndExecScript(std::string scriptName, std::string extractionDir, std:
 }/*}}}*/
 
 /**
- * Adds the pre- and post- install/uninstall scripts to the exclusions list
+ * @brief Adds the pre- and post- install/uninstall scripts to the exclusions list
  *
  * @param [in/out] std::set<std::string>& exclusions
  */
@@ -726,8 +802,8 @@ void addScriptsToExclusions(std::set<std::string>& exclusions) {/*{{{*/
 }/*}}}*/
 
 /**
- * Change working directory to a given path
- * Prints an error message on failure
+ * @brief Change working directory to a given path
+ * @details Prints an error message on failure
  *
  * @param [in] std::string path
  * @param [in] unsigned int verbosity

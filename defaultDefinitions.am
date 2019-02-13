@@ -1,0 +1,2 @@
+DEFAULT_DEFINITIONS = -DDEFAULT_VERBOSITY='$(defaultVerbosity)' -DDEFAULT_SMART_OP='$(defaultSmartOp)' -DDEFAULT_TAR_LIBRARY_PATH='"$(defaultTarLibPath)"' -DDEFAULT_INSTALLED_PKG_PATH='"$(defaultInstalledPkgPath)"' -DDEFAULT_GLOBAL_CONFIG_PATH='"$(defaultGlobalConfigPath)/pkg-mgr.conf"' -DDEFAULT_USER_CONFIG_PATH='"$(defaultUserConfigPath)/pkg-mgr.conf"' -DDEFAULT_SYSTEM_ROOT='"$(defaultSystemRoot)"' -DDEFAULT_EXCLUDED_FILES='$(defaultExcludedFiles)'
+
