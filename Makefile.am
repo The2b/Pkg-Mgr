@@ -2,13 +2,18 @@ AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src
 man3_MANS = docs/man/man3/*
 
-.PHONY: all check unit-tests help html-docs man-docs latex-docs docs clean
+.PHONY: all check unit-tests version-tests all-tests help html-docs man-docs latex-docs docs clean
 
 check:
 	$(MAKE) -C tests/executable-tests check
 
 unit-tests:
 	$(MAKE) -C tests/unit-tests check
+
+version-tests:
+	$(MAKE) -C tests/version-tests check
+
+all-tests: unit-tests check version-tests
 
 help:
 	@echo
@@ -19,6 +24,8 @@ help:
 	@echo make dist-clean - Remvoes files created during configuration and compilation.
 	@echo make check - Run integration tests on a built executable
 	@echo make unit-tests - Build and run unit tests
+	@echo make version-tests - Run version-number tests on Doxygen configuration files and configure.ac
+	@echo make all-tests - Runs all tests (check, unit-tests, version-tests)
 	@echo make html-docs - Create HTML documentation
 	@echo make latex-docs - Create LaTeX documentation
 	@echo make man-docs - Create man pages
