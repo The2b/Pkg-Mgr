@@ -3,6 +3,3 @@ grep -RI @TODO *
 
 The messages that occur when files do not exist often print out success, even when on a low verbosity (2), which can be confusing if the user does not know what this is referencing (underlying IO errors). Make these only appear at verbosity 3 or 4
 **Don't let the error messages for missing config files occur on blank runs (mostly for the first run). At the very least, make them warnings, instead of saying error. The biggest issue here is the user-configuration file** This is only an issue if the files do not exist. I was running into this issue when setting the user config to /pkg-mgr.conf, which was interpreted as an abolute value that didn't exist. Still, we may want to set missing user config warnings to verbosity 3
-
-Install the config file to the system config directory, since that's where we're getting the info to look for it anyway
-Consolidate methods of setting paths for configuration and storage
