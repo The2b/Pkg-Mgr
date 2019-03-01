@@ -622,9 +622,13 @@ bool Options::setUserConfigPath(std::string ucp, unsigned int verbosity) {/*{{{*
     }
 
     else {
-        if(verbosity != 0) {
+        // Make this only occur at verbosity 3 or 4, since we know we won't always have this file, and it's not super important
+        if(verbosity >= 3) {
             fprintf(stderr,"Error: The given user configuration path %s does not exist.\n",realUCP.c_str());
-            fprintf(stderr,"%s\n",e.message().c_str());
+            if(verbosity >= 4) {
+                // Make this only ovvur at verbosity 4 since it can confuse users and often holds no usable information
+                fprintf(stderr,"%s\n",e.message().c_str());
+            }
         }
 
         return false;
