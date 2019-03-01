@@ -25,7 +25,7 @@ help:
 	@echo make check - Run integration tests on a built executable
 	@echo make unit-tests - Build and run unit tests
 	@echo make version-tests - Run version-number tests on Doxygen configuration files and configure.ac
-	@echo make all-tests - Runs all tests (check, unit-tests, version-tests)
+	@echo make all-tests - Runs all tests \(check, unit-tests, version-tests\)
 	@echo make html-docs - Create HTML documentation
 	@echo make latex-docs - Create LaTeX documentation
 	@echo make man-docs - Create man pages
